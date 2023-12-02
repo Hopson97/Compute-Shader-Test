@@ -3,28 +3,37 @@
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D screen;
 
+uniform float fov;
+
 void main()
 {
-	vec4 pixel = vec4(0.075, 0.133, 0.173, 1.0);
+	// Set up initial data
+	vec4 pixel = vec4(0,0,1,0);
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-	
-	ivec2 dims = imageSize(screen);
-	float x = -(float(pixel_coords.x * 2 - dims.x) / dims.x); // transforms to [-1.0, 1.0]
-	float y = -(float(pixel_coords.y * 2 - dims.y) / dims.y); // transforms to [-1.0, 1.0]
+	ivec2 image_size = imageSize(screen);
 
-	float fov = 90.0;
-	vec3 cam_o = vec3(0.0, 0.0, -tan(fov / 2.0));
-	vec3 ray_o = vec3(x, y, 0.0);
-	vec3 ray_d = normalize(ray_o - cam_o);
+	// Ray origin is the pixel coord transformed to [-1.0, 1.0]
+	vec3 ray_origin = vec3(
+		-(float(pixel_coords.x * 2 - image_size.x) / image_size.x),
+		-(float(pixel_coords.y * 2 - image_size.y) / image_size.y),
+		0.0
+	);
 
+	// Camera is at 0
+	vec3 camera_origin = vec3(0.0, 0.0, -tan(fov / 2.0));
+	vec3 ray_direction = normalize(ray_origin - camera_origin);
+
+	// Definea sphere ig
 	vec3 sphere_c = vec3(0.0, 0.0, -5.0);
 	float sphere_r = 1.0;
 
-	vec3 o_c = ray_o - sphere_c;
-	float b = dot(ray_d, o_c);
+	vec3 o_c = ray_origin - sphere_c;
+	float b = dot(ray_direction, o_c);
 	float c = dot(o_c, o_c) - sphere_r * sphere_r;
 	float intersectionState = b * b - c;
-	vec3 intersection = ray_o + ray_d * (-b + sqrt(b * b - c));
+
+
+	vec3 intersection = ray_origin + ray_direction * (-b + sqrt(b * b - c));
 
 	if (intersectionState >= 0.0)
 	{
