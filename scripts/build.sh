@@ -17,17 +17,17 @@ target_debug() {
 # Create folder for distribution
 if [ "$1" = "release" ]
 then
-    if [ -d "$dsa_practice " ]
+    if [ -d "$compute_tests " ]
     then
-        rm -rf -d dsa_practice 
+        rm -rf -d compute_tests 
     fi
 
-    mkdir -p dsa_practice 
+    mkdir -p compute_tests 
 fi
 
 # Creates the folder for the buildaries
-mkdir -p dsa_practice
-mkdir -p dsa_practice/assets
+mkdir -p compute_tests
+mkdir -p compute_tests/assets
 mkdir -p build
 mkdir -p build/release
 mkdir -p build/debug
@@ -42,9 +42,9 @@ fi
 if [ "$1" = "release" ]
 then
     target_release
-    cp build/release/bin/dsa_practice  dsa_practice/dsa_practice 
+    cp build/release/bin/compute_tests  compute_tests/compute_tests 
 else
     target_debug
 fi
 
-cp -R assets dsa_practice/
+cp -R assets compute_tests/

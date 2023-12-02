@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 #Set up project
 project(
-    dsa_practice 
+    compute_tests 
     VERSION 1.0
 )
 
@@ -12,12 +12,16 @@ conan_basic_setup()
 
 #Set executable
 add_executable(${PROJECT_NAME}     
+
     src/main.cpp
-    src/GLDebugEnable.cpp
     src/GUI.cpp
-    src/MeshGeneration.cpp
-    src/Shader.cpp
     src/Util.cpp
+
+    src/Graphics/GLDebugEnable.cpp
+    src/Graphics/Shader.cpp
+    src/Graphics/Texture.cpp
+    src/Graphics/VertexArray.cpp
+
 )
 
 #Set C++17

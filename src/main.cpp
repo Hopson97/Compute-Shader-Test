@@ -6,8 +6,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "GLDebugEnable.h"
 #include "GUI.h"
+#include "Graphics/GLDebugEnable.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
 #include "Graphics/VertexArray.h"
@@ -45,19 +45,13 @@ int main()
     // ----------------------
     Shader screen_shader;
     if (!screen_shader.load_from_file("assets/shaders/ScreenVertex.glsl",
-                                   "assets/shaders/ScreenFragment.glsl"))
+                                      "assets/shaders/ScreenFragment.glsl"))
     {
         return -1;
     }
 
     Shader compute_shader;
     compute_shader.load_compute("assets/shaders/Compute.glsl");
-
-
-
-    // PerspectiveCamera camera(window.getSize().x, window.getSize().y, 90.0f);
-
-    Settings settings;
 
     // -------------------
     // ==== Main Loop ====
@@ -82,15 +76,7 @@ int main()
             break;
         }
 
-        if (!mouse_locked)
-        {
-            window.setMouseCursorVisible(false);
-        }
-        else
-        {
-            window.setMouseCursorVisible(true);
-        }
-
+        window.setMouseCursorVisible(mouse_locked);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport(0, 0, window.getSize().x, window.getSize().y);
@@ -99,7 +85,6 @@ int main()
         screen_texture.bind(0);
         screen_vao.bind();
         glDrawArrays(GL_TRIANGLES, 0, 6);
-
 
         GUI::render();
         window.display();

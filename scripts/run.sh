@@ -2,7 +2,7 @@
 
 if [ "$1" = "release" ]
 then
-    ./build/release/bin/dsa_practice 
+    ./build/release/bin/compute_tests 
 else
-    ./build/debug/bin/dsa_practice 
+    ./build/debug/bin/compute_tests 
 fi

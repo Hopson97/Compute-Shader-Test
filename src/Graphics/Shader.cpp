@@ -39,7 +39,7 @@ namespace
                 glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &length);
             }
             std::cout << "LENGTH " << length << std::endl;
-            //std::string buffer(length + 1, ' ');
+            // std::string buffer(length + 1, ' ');
             std::string buffer(2500, ' ');
             glGetShaderInfoLog(shader, 1024, NULL, buffer.data());
             std::cerr << "Failed to " << action << " shader :\n" << buffer << std::endl;
@@ -52,6 +52,7 @@ namespace
     {
         //  Create and compile
         GLuint shader = glCreateShader(shader_type);
+        std::cout << shader << std::endl;
 
         glShaderSource(shader, 1, (const GLchar* const*)&source, nullptr);
         glCompileShader(shader);
@@ -136,7 +137,6 @@ bool Shader::load_compute(const std::filesystem::path& compute_file_path)
         return false;
     }
 
-    // Compile the vertex shader
     std::cout << "Compiling " << compute_file_path << ".\n";
     auto compute_shader = compile_shader(compute_file_source.c_str(), GL_COMPUTE_SHADER);
     if (!compute_shader)
@@ -145,6 +145,7 @@ bool Shader::load_compute(const std::filesystem::path& compute_file_path)
         return false;
     }
 
+    program_ = glCreateProgram();
     glAttachShader(program_, compute_shader);
     glLinkProgram(program_);
 
@@ -165,6 +166,7 @@ bool Shader::load_compute(const std::filesystem::path& compute_file_path)
 
     // Delete the temporary shaders
     glDeleteShader(compute_shader);
+    return true;
 }
 
 void Shader::bind() const
@@ -202,7 +204,6 @@ void Shader::bind_uniform_block_index(const std::string& name, GLuint index)
 {
     glUniformBlockBinding(program_, glGetUniformBlockIndex(program_, name.c_str()), index);
 }
-
 
 GLint Shader::get_uniform_location(const std::string& name)
 {
