@@ -39,12 +39,23 @@ int main()
     GUI::init(&window);
 
     VertexArray screen_vao;
+
     Shader screen_shader;
-    if (!screen_shader.load_from_file("assets/shaders/ScreenVertex.glsl",
-                                      "assets/shaders/ScreenFragment.glsl"))
+    if (!screen_shader.load_stage("assets/shaders/ScreenVertex.glsl", ShaderType::Vertex) ||
+        !screen_shader.load_stage("assets/shaders/ScreenFragment.glsl", ShaderType::Fragment) ||
+        !screen_shader.link_shaders())
     {
         return -1;
     }
+
+    Shader compute_shader;
+    if (!compute_shader.load_stage("assets/shaders/Compute.glsl", ShaderType::Compute) ||
+        !compute_shader.link_shaders())
+    {
+        return -1;
+    }
+
+    compute_shader.set_uniform("fov", glm::radians(75.0f));
 
     Texture2D screen_texture;
     screen_texture.create(window.getSize().x, window.getSize().y, 1, TextureFormat::RGBA32F);
@@ -53,11 +64,8 @@ int main()
     screen_texture.set_min_filter(TextureMinFilter::Nearest);
     screen_texture.set_mag_filter(TextureMagFilter::Nearest);
 
-    Shader compute_shader;
-    compute_shader.load_compute("assets/shaders/Compute.glsl");
-    compute_shader.set_uniform("fov", glm::radians(75.0f));
+    // This is needed for the compute shader
     glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-   
 
     // -------------------
     // ==== Main Loop ====

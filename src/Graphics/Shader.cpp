@@ -8,21 +8,40 @@
 
 namespace
 {
-    bool verify_shader(GLuint shader, GLuint status_enum, std::string_view action)
+    enum class IVParameter
+    {
+        CompileStatus = GL_COMPILE_STATUS,
+        LinkStatus = GL_LINK_STATUS
+    };
+
+    constexpr const char* to_string(IVParameter param)
+    {
+        switch (param)
+        {
+            case IVParameter::CompileStatus:
+                return "compile";
+
+            case IVParameter::LinkStatus:
+                return "link";
+        }
+        return "ShouldNeverGetHere";
+    }
+
+    bool verify_shader(GLuint shader, IVParameter parameter)
     {
         // Verify
         GLint status = 0;
-        if (status_enum == GL_COMPILE_STATUS)
+        if (parameter == IVParameter::CompileStatus)
         {
-            glGetShaderiv(shader, status_enum, &status);
+            glGetShaderiv(shader, static_cast<GLenum>(parameter), &status);
         }
-        else if (status_enum == GL_LINK_STATUS)
+        else if (parameter == IVParameter::LinkStatus)
         {
-            glGetProgramiv(shader, status_enum, &status);
+            glGetProgramiv(shader, static_cast<GLenum>(parameter), &status);
         }
         else
         {
-            std::cerr << "Unkown verify type for action '" << action << "'\n";
+            std::cerr << "Unkown verify type for action '" << to_string(parameter) << "'\n";
         }
 
         if (status == GL_FALSE)
@@ -30,19 +49,20 @@ namespace
             GLsizei length;
             glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 
-            if (status_enum == GL_COMPILE_STATUS)
+            if (parameter == IVParameter::CompileStatus)
             {
                 glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
             }
-            else if (status_enum == GL_LINK_STATUS)
+            else if (parameter == IVParameter::LinkStatus)
             {
                 glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &length);
             }
+
             std::cout << "LENGTH " << length << std::endl;
             // std::string buffer(length + 1, ' ');
             std::string buffer(2500, ' ');
             glGetShaderInfoLog(shader, 1024, NULL, buffer.data());
-            std::cerr << "Failed to " << action << " shader :\n" << buffer << std::endl;
+            std::cerr << "Failed to " << to_string(parameter) << " shader :\n" << buffer << std::endl;
             return false;
         }
         return true;
@@ -50,15 +70,11 @@ namespace
 
     GLuint compile_shader(const char* source, GLuint shader_type)
     {
-        //  Create and compile
         GLuint shader = glCreateShader(shader_type);
-        std::cout << shader << std::endl;
-
         glShaderSource(shader, 1, (const GLchar* const*)&source, nullptr);
         glCompileShader(shader);
 
-        // Verify
-        if (!verify_shader(shader, GL_COMPILE_STATUS, "compile"))
+        if (!verify_shader(shader, IVParameter::CompileStatus))
         {
             return 0;
         }
@@ -66,92 +82,49 @@ namespace
     }
 } // namespace
 
+Shader::Shader()
+{
+}
+
 Shader::~Shader()
 {
     glDeleteProgram(program_);
 }
 
-bool Shader::load_from_file(const std::filesystem::path& vertex_file_path,
-                            const std::filesystem::path& fragment_file_path)
+bool Shader::load_stage(const std::filesystem::path& file_path, ShaderType shader_type)
 {
     // Load the files into strings and verify
-    auto vertex_file_source = read_file_to_string(vertex_file_path);
-    auto fragment_file_source = read_file_to_string(fragment_file_path);
-    if (vertex_file_source.length() == 0 || fragment_file_source.length() == 0)
+    auto source = read_file_to_string(file_path);
+    if (source.length() == 0)
     {
         return false;
     }
 
-    // Compile the vertex shader
-    std::cout << "Compiling " << vertex_file_path << ".\n";
-    auto vertex_shader = compile_shader(vertex_file_source.c_str(), GL_VERTEX_SHADER);
-    if (!vertex_shader)
+    std::cout << "Compiling " << file_path << ".\n";
+    GLuint shader = compile_shader(source.c_str(), static_cast<GLenum>(shader_type));
+    if (!shader)
     {
-        std::cerr << "Failed to compile vertex shader file " << vertex_file_path << ".\n";
+        std::cerr << "Failed to compile shader file " << file_path << ".\n";
         return false;
     }
+    stages_.push_back(shader);
 
-    // Compile the fragment shader
-    std::cout << "Compiling " << fragment_file_path << ".\n";
-    auto fragment_shader = compile_shader(fragment_file_source.c_str(), GL_FRAGMENT_SHADER);
-    if (!fragment_shader)
-    {
-        std::cerr << "Failed to compile fragment shader file " << fragment_file_path << ".\n";
-        return false;
-    }
-
-    // Link the shaders together and verify the link status
-    program_ = glCreateProgram();
-    glAttachShader(program_, vertex_shader);
-    glAttachShader(program_, fragment_shader);
-    glLinkProgram(program_);
-
-    if (!verify_shader(program_, GL_LINK_STATUS, "link"))
-    {
-        std::cerr << "Failed to link" << vertex_file_path << " and " << fragment_file_path
-                  << ".\n";
-        return false;
-    }
-    glValidateProgram(program_);
-
-    int status = 0;
-    glGetProgramiv(program_, GL_VALIDATE_STATUS, &status);
-    if (status == GL_FALSE)
-    {
-        std::cerr << "Failed to validate shader program.\n";
-        return false;
-    }
-
-    // Delete the temporary shaders
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
     return true;
 }
 
-bool Shader::load_compute(const std::filesystem::path& compute_file_path)
+bool Shader::link_shaders()
 {
-    // Load the files into strings and verify
-    auto compute_file_source = read_file_to_string(compute_file_path);
-    if (compute_file_source.length() == 0)
-    {
-        return false;
-    }
-
-    std::cout << "Compiling " << compute_file_path << ".\n";
-    auto compute_shader = compile_shader(compute_file_source.c_str(), GL_COMPUTE_SHADER);
-    if (!compute_shader)
-    {
-        std::cerr << "Failed to compile compute shader file " << compute_file_path << ".\n";
-        return false;
-    }
-
+    // Link the shaders together and verify the link status
     program_ = glCreateProgram();
-    glAttachShader(program_, compute_shader);
+    for (auto stage : stages_)
+    {
+        glAttachShader(program_, stage);
+    }
     glLinkProgram(program_);
 
-    if (!verify_shader(program_, GL_LINK_STATUS, "link"))
+    if (!verify_shader(program_, IVParameter::LinkStatus))
     {
-        std::cerr << "Failed to link" << compute_file_path << '\n';
+        std::cerr << "Failed to link shaders\n";
         return false;
     }
     glValidateProgram(program_);
@@ -165,7 +138,13 @@ bool Shader::load_compute(const std::filesystem::path& compute_file_path)
     }
 
     // Delete the temporary shaders
-    glDeleteShader(compute_shader);
+    for (auto& shader : stages_)
+    {
+        glDeleteShader(shader);
+    }
+    stages_.clear();
+    stages_.shrink_to_fit();
+
     return true;
 }
 
@@ -184,20 +163,19 @@ void Shader::set_uniform(const std::string& name, float value)
     glProgramUniform1f(program_, get_uniform_location(name), value);
 }
 
-void Shader::set_uniform(const std::string& name, const glm::vec3& vect)
+void Shader::set_uniform(const std::string& name, const glm::vec3& vector)
 {
-    glProgramUniform3fv(program_, get_uniform_location(name), 1, glm::value_ptr(vect));
+    glProgramUniform3fv(program_, get_uniform_location(name), 1, glm::value_ptr(vector));
 }
 
-void Shader::set_uniform(const std::string& name, const glm::vec4& vect)
+void Shader::set_uniform(const std::string& name, const glm::vec4& vector)
 {
-    glProgramUniform4fv(program_, get_uniform_location(name), 1, glm::value_ptr(vect));
+    glProgramUniform4fv(program_, get_uniform_location(name), 1, glm::value_ptr(vector));
 }
 
 void Shader::set_uniform(const std::string& name, const glm::mat4& matrix)
 {
-    glProgramUniformMatrix4fv(program_, get_uniform_location(name), 1, GL_FALSE,
-                              glm::value_ptr(matrix));
+    glProgramUniformMatrix4fv(program_, get_uniform_location(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 void Shader::bind_uniform_block_index(const std::string& name, GLuint index)
