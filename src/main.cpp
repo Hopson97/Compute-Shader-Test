@@ -38,18 +38,20 @@ int main()
     init_opengl_debugging();
     GUI::init(&window);
 
-    VertexArray screen_vao;
+    mus::VertexArray screen_vao;
 
-    Shader screen_shader;
-    if (!screen_shader.load_stage("assets/shaders/ScreenVertex.glsl", ShaderType::Vertex) ||
-        !screen_shader.load_stage("assets/shaders/ScreenFragment.glsl", ShaderType::Fragment) ||
+    mus::Shader screen_shader;
+    if (!screen_shader.load_stage("assets/shaders/ScreenVertex.glsl",
+                                  mus::ShaderType::Vertex) ||
+        !screen_shader.load_stage("assets/shaders/ScreenFragment.glsl",
+                                  mus::ShaderType::Fragment) ||
         !screen_shader.link_shaders())
     {
         return -1;
     }
 
-    Shader compute_shader;
-    if (!compute_shader.load_stage("assets/shaders/Compute.glsl", ShaderType::Compute) ||
+    mus::Shader compute_shader;
+    if (!compute_shader.load_stage("assets/shaders/Compute.glsl", mus::ShaderType::Compute) ||
         !compute_shader.link_shaders())
     {
         return -1;
@@ -57,12 +59,13 @@ int main()
 
     compute_shader.set_uniform("fov", glm::radians(75.0f));
 
-    Texture2D screen_texture;
-    screen_texture.create(window.getSize().x, window.getSize().y, 1, TextureFormat::RGBA32F);
-    screen_texture.set_wrap_s(TextureWrap::ClampToEdge);
-    screen_texture.set_wrap_t(TextureWrap::ClampToEdge);
-    screen_texture.set_min_filter(TextureMinFilter::Nearest);
-    screen_texture.set_mag_filter(TextureMagFilter::Nearest);
+    mus::Texture2D screen_texture;
+    screen_texture.create(window.getSize().x, window.getSize().y, 1,
+                          mus::TextureFormat::RGBA32F);
+    screen_texture.set_wrap_s(mus::TextureWrap::ClampToEdge);
+    screen_texture.set_wrap_t(mus::TextureWrap::ClampToEdge);
+    screen_texture.set_min_filter(mus::TextureMinFilter::Nearest);
+    screen_texture.set_mag_filter(mus::TextureMagFilter::Nearest);
 
     // This is needed for the compute shader
     glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
