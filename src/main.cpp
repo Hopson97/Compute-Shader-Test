@@ -128,7 +128,7 @@ int main()
         {
             glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
             glBindImageTexture(1, screen_texture2.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-            screen_texture.bind(1);
+            screen_texture2.bind(0);
         }
         else
         {

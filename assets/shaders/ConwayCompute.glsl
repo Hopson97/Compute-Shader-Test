@@ -3,7 +3,7 @@
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 
 layout(rgba32f, binding = 0) uniform readonly image2D in_screen;
-layout(rgba32f, binding =1) uniform writeonly image2D out_screen;
+layout(rgba32f, binding = 1) uniform writeonly image2D out_screen;
 
 const vec4 DEAD = vec4(0, 0, 0, 0);
 const vec4 ALIVE = vec4(1, 1, 1, 1);

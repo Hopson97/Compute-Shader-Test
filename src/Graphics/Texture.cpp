@@ -9,11 +9,11 @@
 //=======================
 namespace
 {
-    constexpr std::array<const char*, 6> CUBE_TEXTURE_NAMES = {
-        "right.png", "left.png", "top.png", "bottom.png", "back.png", "front.png"};
+    constexpr std::array<const char*, 6> CUBE_TEXTURE_NAMES = {"right.png",  "left.png", "top.png",
+                                                               "bottom.png", "back.png", "front.png"};
 
-    bool load_image_from_file(const std::filesystem::path& path, bool flip_vertically,
-                              bool flip_horizontally, sf::Image& out_image)
+    bool load_image_from_file(const std::filesystem::path& path, bool flip_vertically, bool flip_horizontally,
+                              sf::Image& out_image)
     {
         if (!out_image.loadFromFile(path.string()))
         {
@@ -71,8 +71,7 @@ namespace mus
     {
     }
 
-    GLuint Texture2D::create(GLsizei width, GLsizei height, GLsizei levels,
-                             TextureFormat format)
+    GLuint Texture2D::create(GLsizei width, GLsizei height, GLsizei levels, TextureFormat format)
     {
         glTextureStorage2D(id, levels, static_cast<GLenum>(format), width, height);
 
@@ -82,8 +81,7 @@ namespace mus
         return id;
     }
 
-    bool Texture2D::load_from_image(const sf::Image& image, GLsizei levels,
-                                    TextureInternalFormat internal_format,
+    bool Texture2D::load_from_image(const sf::Image& image, GLsizei levels, TextureInternalFormat internal_format,
                                     TextureFormat format)
     {
         const auto w = image.getSize().x;
@@ -93,9 +91,8 @@ namespace mus
         // Allocate the storage
         glTextureStorage2D(id, levels, static_cast<GLenum>(format), w, h);
 
-        // Uplodad the pixels
-        glTextureSubImage2D(id, 0, 0, 0, w, h, static_cast<GLenum>(internal_format),
-                            GL_UNSIGNED_BYTE, data);
+        // Upload the pixels
+        glTextureSubImage2D(id, 0, 0, 0, w, h, static_cast<GLenum>(internal_format), GL_UNSIGNED_BYTE, data);
         glGenerateTextureMipmap(id);
 
         // Set some default wrapping
@@ -107,9 +104,8 @@ namespace mus
         return true;
     }
 
-    bool Texture2D::load_from_file(const std::filesystem::path& path, GLsizei levels,
-                                   bool flip_vertically, bool flip_horizontally,
-                                   TextureInternalFormat internal_format, TextureFormat format)
+    bool Texture2D::load_from_file(const std::filesystem::path& path, GLsizei levels, bool flip_vertically,
+                                   bool flip_horizontally, TextureInternalFormat internal_format, TextureFormat format)
     {
         sf::Image image;
         if (!load_image_from_file(path, flip_vertically, flip_horizontally, image))
@@ -163,6 +159,7 @@ namespace mus
         set_mag_filter(TextureMagFilter::Linear);
         set_wrap_s(TextureWrap::ClampToEdge);
         set_wrap_t(TextureWrap::ClampToEdge);
+        return created;
     }
 
     bool CubeMapTexture::is_loaded() const
