@@ -6,8 +6,6 @@ build/
 # Windows
 *.dll
 *.exe
-*.sln
-*.vcxproj
 *.filters
 *.user
 *.vs
