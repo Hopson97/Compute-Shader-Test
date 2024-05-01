@@ -13,11 +13,23 @@ void main()
 	ivec2 image_size = imageSize(screen);
 
 	// Ray origin is the pixel coord transformed to [-1.0, 1.0]
-	vec3 ray_origin = vec3(
+	vec2 ndc = {
 		-(float(pixel_coords.x * 2 - image_size.x) / image_size.x),
 		-(float(pixel_coords.y * 2 - image_size.y) / image_size.y),
-		0.0
-	);
+	};
+	
+	// Convert ndc to be between 0 and 1
+	vec2 ndc2 = {
+		(ndc.x + 1) / 2,
+		(ndc.y + 1 )/ 2,
+	};
+	pixel.r = ndc2.r;
+	pixel.g = ndc2.g;
+	
+
+	vec3 ray_origin = {
+		ndc.x, ndc.y, 0.0
+	};
 
 	// Camera is at 0
 	vec3 camera_origin = vec3(0.0, 0.0, -tan(fov / 2.0));
