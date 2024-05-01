@@ -1,4 +1,5 @@
 #pragma once
+/*
 
 #include <SFML/Window/Window.hpp>
 
@@ -15,3 +16,4 @@ namespace GUI
     void event(const sf::Window& window, sf::Event& e);
 
 } // namespace GUI
+*/

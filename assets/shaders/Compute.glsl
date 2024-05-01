@@ -5,6 +5,21 @@ layout(rgba32f, binding = 0) uniform image2D screen;
 
 uniform float fov;
 
+struct Ray 
+{
+	vec3 origin;
+	vec3 direction;
+};
+
+// Ray trace steps
+/*
+	1. Calculate the ray from the eye position though the pixel
+	2. Caclulate objects the ray intersects with
+	3. Compute a colour 
+
+*/
+
+
 void main()
 {
 	// Set up initial data

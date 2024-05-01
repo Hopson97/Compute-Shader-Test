@@ -1,4 +1,7 @@
+# Do not run this - It may crash your pc and is highly experimental
+
 ### Resources
+
 
 https://antongerdelan.net/opengl/compute.html
 

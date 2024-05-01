@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <numbers>
 
 #include <SFML/Graphics/Image.hpp>
@@ -6,7 +7,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "GUI.h"
 #include "Graphics/GLDebugEnable.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
@@ -23,7 +23,7 @@ int main()
     context_settings.minorVersion = 5;
     context_settings.attributeFlags = sf::ContextSettings::Core;
 
-    sf::Window window({1600, 900}, "OpenGL", sf::Style::Default, context_settings);
+    sf::Window window({900, 900}, "OpenGL", sf::Style::Default, context_settings);
     window.setVerticalSyncEnabled(true);
     bool mouse_locked = false;
 
@@ -34,49 +34,66 @@ int main()
         std::cerr << "Failed to init OpenGL - Is OpenGL linked correctly?\n";
         return -1;
     }
-    glViewport(0, 0, 1600, 900);
+    glViewport(0, 0, 900, 900);
     init_opengl_debugging();
-    GUI::init(&window);
+    // GUI::init(&window);
 
-    VertexArray screen_vao;
+    mus::VertexArray screen_vao;
 
-    Shader screen_shader;
-    if (!screen_shader.load_stage("assets/shaders/ScreenVertex.glsl", ShaderType::Vertex) ||
-        !screen_shader.load_stage("assets/shaders/ScreenFragment.glsl", ShaderType::Fragment) ||
+    mus::Shader screen_shader;
+    if (!screen_shader.load_stage("assets/shaders/ScreenVertex.glsl",
+                                  mus::ShaderType::Vertex) ||
+        !screen_shader.load_stage("assets/shaders/ScreenFragment.glsl",
+                                  mus::ShaderType::Fragment) ||
         !screen_shader.link_shaders())
     {
         return -1;
     }
 
-    Shader compute_shader;
-    if (!compute_shader.load_stage("assets/shaders/Compute.glsl", ShaderType::Compute) ||
+    mus::Shader compute_shader;
+    if (!compute_shader.load_stage("assets/shaders/ConwayCompute.glsl", mus::ShaderType::Compute) ||
         !compute_shader.link_shaders())
     {
         return -1;
     }
 
-    compute_shader.set_uniform("fov", glm::radians(75.0f));
+    sf::Image image;
+    image.create(window.getSize().x, window.getSize().y);
+    for (int y = 0; y < image.getSize().y; y++)
+    {
+        for (int x = 0; x < image.getSize().x; x++)
+        {
+            image.setPixel(x, y, rand() % 50 > 20 ? sf::Color::Black : sf::Color::White);
+        }
+    }
+    mus::Texture2D screen_texture;
+    screen_texture.load_from_image(image, 1);
+    // screen_texture.create(window.getSize().x, window.getSize().y, 1,
+    //                       mus::TextureFormat::RGBA32F);
+    screen_texture.set_wrap_s(mus::TextureWrap::ClampToEdge);
+    screen_texture.set_wrap_t(mus::TextureWrap::ClampToEdge);
+    screen_texture.set_min_filter(mus::TextureMinFilter::Nearest);
+    screen_texture.set_mag_filter(mus::TextureMagFilter::Nearest);
 
-    Texture2D screen_texture;
-    screen_texture.create(window.getSize().x, window.getSize().y, 1, TextureFormat::RGBA32F);
-    screen_texture.set_wrap_s(TextureWrap::ClampToEdge);
-    screen_texture.set_wrap_t(TextureWrap::ClampToEdge);
-    screen_texture.set_min_filter(TextureMinFilter::Nearest);
-    screen_texture.set_mag_filter(TextureMagFilter::Nearest);
 
     // This is needed for the compute shader
-    glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    // glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+    glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
+    sf::Clock timer;
 
     // -------------------
     // ==== Main Loop ====
     // -------------------
     while (window.isOpen())
     {
-        GUI::begin_frame();
+
+        std::cout << "Begin" << std::endl;
+        // GUI::begin_frame();
         sf::Event e;
         while (window.pollEvent(e))
         {
-            GUI::event(window, e);
+            // GUI::event(window, e);
             if (e.type == sf::Event::Closed)
                 window.close();
             else if (e.type == sf::Event::KeyReleased)
@@ -90,14 +107,14 @@ int main()
             break;
         }
 
-        window.setMouseCursorVisible(mouse_locked);
+        // window.setMouseCursorVisible(mouse_locked);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport(0, 0, window.getSize().x, window.getSize().y);
 
+        compute_shader.bind();
         screen_texture.bind(0);
 
-        compute_shader.bind();
         glDispatchCompute(ceil(window.getSize().x / 8), ceil(window.getSize().y / 4), 1);
         glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
@@ -105,12 +122,12 @@ int main()
         screen_vao.bind();
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        GUI::render();
+        // GUI::render();
         window.display();
     }
 
     // --------------------------
     // ==== Graceful Cleanup ====
     // --------------------------
-    GUI::shutdown();
+    // GUI::shutdown();
 }

@@ -11,44 +11,49 @@
 #include <unordered_map>
 #include <vector>
 
-enum class ShaderType
+namespace mus
 {
-    Vertex = GL_VERTEX_SHADER,
-    Fragment = GL_FRAGMENT_SHADER,
-    Geometry = GL_GEOMETRY_SHADER,
-    TesselationEvaluation = GL_TESS_EVALUATION_SHADER,
-    TesselationControl = GL_TESS_CONTROL_SHADER,
-    Compute = GL_COMPUTE_SHADER,
-};
 
-class Shader
-{
-  public:
-    Shader();
-    Shader(Shader&& other) noexcept = delete;
-    Shader(const Shader& other) = delete;
-    Shader& operator=(Shader&& other) noexcept = delete;
-    Shader& operator=(const Shader& other) = delete;
-    ~Shader();
+    enum class ShaderType
+    {
+        Vertex = GL_VERTEX_SHADER,
+        Fragment = GL_FRAGMENT_SHADER,
+        Geometry = GL_GEOMETRY_SHADER,
+        TesselationEvaluation = GL_TESS_EVALUATION_SHADER,
+        TesselationControl = GL_TESS_CONTROL_SHADER,
+        Compute = GL_COMPUTE_SHADER,
+    };
 
-    bool load_stage(const std::filesystem::path& file_path, ShaderType shader_type);
-    bool link_shaders();
+    class Shader
+    {
+      public:
+        Shader();
+        Shader(Shader&& other) noexcept = delete;
+        Shader(const Shader& other) = delete;
+        Shader& operator=(Shader&& other) noexcept = delete;
+        Shader& operator=(const Shader& other) = delete;
+        ~Shader();
 
-    void bind() const;
+        bool load_stage(const std::filesystem::path& file_path, ShaderType shader_type);
+        bool link_shaders();
 
-    void set_uniform(const std::string& name, int value);
-    void set_uniform(const std::string& name, float value);
-    void set_uniform(const std::string& name, const glm::vec3& vector);
-    void set_uniform(const std::string& name, const glm::vec4& vector);
-    void set_uniform(const std::string& name, const glm::mat4& matrix);
+        void bind() const;
 
-    void bind_uniform_block_index(const std::string& name, GLuint index);
+        void set_uniform(const std::string& name, int value);
+        void set_uniform(const std::string& name, float value);
+        void set_uniform(const std::string& name, const glm::vec3& vector);
+        void set_uniform(const std::string& name, const glm::vec4& vector);
+        void set_uniform(const std::string& name, const glm::mat4& matrix);
 
-  private:
-    GLint get_uniform_location(const std::string& name);
+        void bind_uniform_block_index(const std::string& name, GLuint index);
 
-  private:
-    std::unordered_map<std::string, GLint> uniform_locations_;
-    std::vector<GLuint> stages_;
-    GLuint program_ = 0;
-};
+      private:
+        GLint get_uniform_location(const std::string& name);
+
+      private:
+        std::unordered_map<std::string, GLint> uniform_locations_;
+        std::vector<GLuint> stages_;
+        GLuint program_ = 0;
+    };
+
+} // namespace mus
