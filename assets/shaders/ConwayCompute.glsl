@@ -23,12 +23,12 @@ int get_pixel_value(ivec2 pixel_coords, ivec2 image_size)
 void main()
 {
     ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+    imageStore(out_screen, pixel_coords, vec4(1,0,1,1));
+    return;
     ivec2 image_size = imageSize(in_screen);
 
     vec4 current = imageLoad(in_screen, pixel_coords);
     bool alive = int(current.r) == 1;
-    imageStore(out_screen, pixel_coords, vec4(1,0,1,1));
-    return;
 
     int neighbours = 0;
     for (int y = -1; y <= 1; y++) 
