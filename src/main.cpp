@@ -23,7 +23,7 @@ int main()
     context_settings.minorVersion = 5;
     context_settings.attributeFlags = sf::ContextSettings::Core;
 
-    sf::Window window({900, 900}, "OpenGL", sf::Style::Default, context_settings);
+    sf::Window window({1024, 1024}, "OpenGL", sf::Style::Default, context_settings);
     window.setVerticalSyncEnabled(true);
     bool mouse_locked = false;
 
@@ -66,7 +66,7 @@ int main()
     }
     mus::Texture2D screen_texture;
     mus::Texture2D screen_texture2;
-    screen_texture.load_from_image(image, 1);
+    screen_texture.load_from_image(image, 1, mus::TextureInternalFormat::RGBA, mus::TextureFormat::RGBA32F);
     // screen_texture.create(window.getSize().x, window.getSize().y, 1,
     //                       mus::TextureFormat::RGBA32F);
     screen_texture.set_wrap_s(mus::TextureWrap::ClampToEdge);
@@ -126,14 +126,14 @@ int main()
 
         if (gen % 2 == 0)
         {
-            glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
-            glBindImageTexture(1, screen_texture2.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
+            glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+            glBindImageTexture(1, screen_texture2.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
             screen_texture2.bind(0);
         }
         else
         {
-            glBindImageTexture(0, screen_texture2.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
-            glBindImageTexture(1, screen_texture.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
+            glBindImageTexture(0, screen_texture2.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+            glBindImageTexture(1, screen_texture.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
             screen_texture.bind(0);
         }
         gen++;

@@ -24,7 +24,6 @@ void main()
 {
     ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
     imageStore(out_screen, pixel_coords, vec4(1,0,1,1));
-    return;
     ivec2 image_size = imageSize(in_screen);
 
     vec4 current = imageLoad(in_screen, pixel_coords);
@@ -41,7 +40,7 @@ void main()
             neighbours += get_pixel_value(pixel_coords + ivec2(x, y), image_size);
         }
     }
-/*
+
     if (!alive && neighbours == 3) 
     {
         imageStore(out_screen, pixel_coords, ALIVE);
@@ -53,5 +52,5 @@ void main()
     else
     {
         imageStore(out_screen, pixel_coords, current);
-    }*/
+    }
 }
