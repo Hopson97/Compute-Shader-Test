@@ -82,14 +82,10 @@ namespace mus
         return id;
     }
 
-    bool Texture2D::load_from_file(const std::filesystem::path& path, GLsizei levels,
-                                   bool flip_vertically, bool flip_horizontally,
-                                   TextureInternalFormat internal_format, TextureFormat format)
+    bool Texture2D::load_from_image(const sf::Image& image, GLsizei levels,
+                                    TextureInternalFormat internal_format,
+                                    TextureFormat format)
     {
-        sf::Image image;
-        if (!load_image_from_file(path, flip_vertically, flip_horizontally, image))
-            return false;
-
         const auto w = image.getSize().x;
         const auto h = image.getSize().y;
         const auto data = image.getPixelsPtr();
@@ -109,6 +105,17 @@ namespace mus
         set_wrap_t(TextureWrap::Repeat);
         is_loaded_ = true;
         return true;
+    }
+
+    bool Texture2D::load_from_file(const std::filesystem::path& path, GLsizei levels,
+                                   bool flip_vertically, bool flip_horizontally,
+                                   TextureInternalFormat internal_format, TextureFormat format)
+    {
+        sf::Image image;
+        if (!load_image_from_file(path, flip_vertically, flip_horizontally, image))
+            return false;
+
+        return load_from_image(image, levels, internal_format, format);
     }
 
     bool Texture2D::is_loaded() const

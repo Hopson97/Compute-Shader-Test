@@ -85,6 +85,11 @@ namespace mus
                       TextureFormat format = TextureFormat::RGB8);
 
         bool
+        load_from_image(const sf::Image& image, GLsizei levels,
+                       TextureInternalFormat internal_format = TextureInternalFormat::RGBA,
+                       TextureFormat format = TextureFormat::RGBA8);
+
+        bool
         load_from_file(const std::filesystem::path& path, GLsizei levels, bool flip_vertically,
                        bool flip_horizontally,
                        TextureInternalFormat internal_format = TextureInternalFormat::RGBA,

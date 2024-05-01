@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <numbers>
 
 #include <SFML/Graphics/Image.hpp>
@@ -23,7 +24,7 @@ int main()
     context_settings.minorVersion = 5;
     context_settings.attributeFlags = sf::ContextSettings::Core;
 
-    sf::Window window({1600, 900}, "OpenGL", sf::Style::Default, context_settings);
+    sf::Window window({900, 900}, "OpenGL", sf::Style::Default, context_settings);
     window.setVerticalSyncEnabled(true);
     bool mouse_locked = false;
 
@@ -34,7 +35,7 @@ int main()
         std::cerr << "Failed to init OpenGL - Is OpenGL linked correctly?\n";
         return -1;
     }
-    glViewport(0, 0, 1600, 900);
+    glViewport(0, 0, 900, 900);
     init_opengl_debugging();
     GUI::init(&window);
 
@@ -51,30 +52,44 @@ int main()
     }
 
     mus::Shader compute_shader;
-    if (!compute_shader.load_stage("assets/shaders/Compute.glsl", mus::ShaderType::Compute) ||
+    if (!compute_shader.load_stage("assets/shaders/ConwayCompute.glsl", mus::ShaderType::Compute) ||
         !compute_shader.link_shaders())
     {
         return -1;
     }
 
-    compute_shader.set_uniform("fov", glm::radians(75.0f));
-
+    sf::Image image;
+    image.create(window.getSize().x, window.getSize().y);
+    for (int y = 0; y < image.getSize().y; y++)
+    {
+        for (int x = 0; x < image.getSize().x; x++)
+        {
+            image.setPixel(x, y, rand() % 50 > 20 ? sf::Color::Black : sf::Color::White);
+        }
+    }
     mus::Texture2D screen_texture;
-    screen_texture.create(window.getSize().x, window.getSize().y, 1,
-                          mus::TextureFormat::RGBA32F);
+    screen_texture.load_from_image(image, 1);
+    // screen_texture.create(window.getSize().x, window.getSize().y, 1,
+    //                       mus::TextureFormat::RGBA32F);
     screen_texture.set_wrap_s(mus::TextureWrap::ClampToEdge);
     screen_texture.set_wrap_t(mus::TextureWrap::ClampToEdge);
     screen_texture.set_min_filter(mus::TextureMinFilter::Nearest);
     screen_texture.set_mag_filter(mus::TextureMagFilter::Nearest);
 
+
     // This is needed for the compute shader
-    glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    // glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+    glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
+    sf::Clock timer;
 
     // -------------------
     // ==== Main Loop ====
     // -------------------
     while (window.isOpen())
     {
+
+        std::cout << "Begin" << std::endl;
         GUI::begin_frame();
         sf::Event e;
         while (window.pollEvent(e))
@@ -93,14 +108,14 @@ int main()
             break;
         }
 
-        window.setMouseCursorVisible(mouse_locked);
+        // window.setMouseCursorVisible(mouse_locked);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport(0, 0, window.getSize().x, window.getSize().y);
 
+        compute_shader.bind();
         screen_texture.bind(0);
 
-        compute_shader.bind();
         glDispatchCompute(ceil(window.getSize().x / 8), ceil(window.getSize().y / 4), 1);
         glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
