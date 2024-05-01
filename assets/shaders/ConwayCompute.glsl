@@ -1,7 +1,9 @@
 #version 460 core
 
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
-layout(rgba32f, binding = 0) uniform image2D screen;
+
+layout(rgba32f, binding = 0) uniform readonly image2D in_screen;
+layout(rgba32f, binding =1) uniform writeonly image2D out_screen;
 
 const vec4 DEAD = vec4(0, 0, 0, 0);
 const vec4 ALIVE = vec4(1, 1, 1, 1);
@@ -10,7 +12,7 @@ int get_pixel_value(ivec2 pixel_coords, ivec2 image_size)
 {
     if (all(greaterThanEqual(pixel_coords, ivec2(0))) && all(lessThan(pixel_coords, image_size))) 
     {
-        return int(imageLoad(screen, pixel_coords).r);
+        return int(imageLoad(in_screen, pixel_coords).r);
     } 
     else 
     {
@@ -21,9 +23,9 @@ int get_pixel_value(ivec2 pixel_coords, ivec2 image_size)
 void main()
 {
     ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-    ivec2 image_size = imageSize(screen);
+    ivec2 image_size = imageSize(in_screen);
 
-    vec4 current = imageLoad(screen, pixel_coords);
+    vec4 current = imageLoad(in_screen, pixel_coords);
     bool alive = int(current.r) == 1;
 
     int neighbours = 0;
@@ -31,22 +33,23 @@ void main()
     {
         for (int x = -1; x <= 1; x++) 
         {
-            if (x != 0 || y != 0) {
-                neighbours += get_pixel_value(pixel_coords + ivec2(x, y), image_size);
+            if (x == 0 && y == 0) {
+                continue;
             }
+            neighbours += get_pixel_value(pixel_coords + ivec2(x, y), image_size);
         }
     }
 
     if (!alive && neighbours == 3) 
     {
-        imageStore(screen, pixel_coords, ALIVE);
+        imageStore(out_screen, pixel_coords, ALIVE);
     }
     else if (alive && (neighbours < 2 || neighbours > 3)) 
     {
-        imageStore(screen, pixel_coords, DEAD);
+        imageStore(out_screen, pixel_coords, DEAD);
     }
     else
     {
-        imageStore(screen, pixel_coords, current);
+        imageStore(out_screen, pixel_coords, current);
     }
 }

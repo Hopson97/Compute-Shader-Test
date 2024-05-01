@@ -41,10 +41,8 @@ int main()
     mus::VertexArray screen_vao;
 
     mus::Shader screen_shader;
-    if (!screen_shader.load_stage("assets/shaders/ScreenVertex.glsl",
-                                  mus::ShaderType::Vertex) ||
-        !screen_shader.load_stage("assets/shaders/ScreenFragment.glsl",
-                                  mus::ShaderType::Fragment) ||
+    if (!screen_shader.load_stage("assets/shaders/ScreenVertex.glsl", mus::ShaderType::Vertex) ||
+        !screen_shader.load_stage("assets/shaders/ScreenFragment.glsl", mus::ShaderType::Fragment) ||
         !screen_shader.link_shaders())
     {
         return -1;
@@ -67,6 +65,7 @@ int main()
         }
     }
     mus::Texture2D screen_texture;
+    mus::Texture2D screen_texture2;
     screen_texture.load_from_image(image, 1);
     // screen_texture.create(window.getSize().x, window.getSize().y, 1,
     //                       mus::TextureFormat::RGBA32F);
@@ -75,10 +74,16 @@ int main()
     screen_texture.set_min_filter(mus::TextureMinFilter::Nearest);
     screen_texture.set_mag_filter(mus::TextureMagFilter::Nearest);
 
+    screen_texture2.create(window.getSize().x, window.getSize().y, 1, mus::TextureFormat::RGBA32F);
+    screen_texture2.set_wrap_s(mus::TextureWrap::ClampToEdge);
+    screen_texture2.set_wrap_t(mus::TextureWrap::ClampToEdge);
+    screen_texture2.set_min_filter(mus::TextureMinFilter::Nearest);
+    screen_texture2.set_mag_filter(mus::TextureMagFilter::Nearest);
+
+    int gen = 0;
 
     // This is needed for the compute shader
     // glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-    glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
     sf::Clock timer;
 
@@ -88,7 +93,6 @@ int main()
     while (window.isOpen())
     {
 
-        std::cout << "Begin" << std::endl;
         // GUI::begin_frame();
         sf::Event e;
         while (window.pollEvent(e))
@@ -97,10 +101,16 @@ int main()
             if (e.type == sf::Event::Closed)
                 window.close();
             else if (e.type == sf::Event::KeyReleased)
+            {
                 if (e.key.code == sf::Keyboard::Escape)
+                {
                     window.close();
+                }
                 else if (e.key.code == sf::Keyboard::L)
+                {
                     mouse_locked = !mouse_locked;
+                }
+            }
         }
         if (!window.isOpen())
         {
@@ -113,7 +123,20 @@ int main()
         glViewport(0, 0, window.getSize().x, window.getSize().y);
 
         compute_shader.bind();
-        screen_texture.bind(0);
+
+        if (gen % 2 == 0)
+        {
+            screen_texture.bind(0);
+            glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+            glBindImageTexture(1, screen_texture2.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        }
+        else
+        {
+            screen_texture2.bind(0);
+            glBindImageTexture(0, screen_texture2.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+            glBindImageTexture(1, screen_texture.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        }
+        gen++;
 
         glDispatchCompute(ceil(window.getSize().x / 8), ceil(window.getSize().y / 4), 1);
         glMemoryBarrier(GL_ALL_BARRIER_BITS);
