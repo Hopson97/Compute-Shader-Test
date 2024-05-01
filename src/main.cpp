@@ -7,7 +7,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "GUI.h"
 #include "Graphics/GLDebugEnable.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
@@ -37,7 +36,7 @@ int main()
     }
     glViewport(0, 0, 900, 900);
     init_opengl_debugging();
-    GUI::init(&window);
+    // GUI::init(&window);
 
     mus::VertexArray screen_vao;
 
@@ -90,11 +89,11 @@ int main()
     {
 
         std::cout << "Begin" << std::endl;
-        GUI::begin_frame();
+        // GUI::begin_frame();
         sf::Event e;
         while (window.pollEvent(e))
         {
-            GUI::event(window, e);
+            // GUI::event(window, e);
             if (e.type == sf::Event::Closed)
                 window.close();
             else if (e.type == sf::Event::KeyReleased)
@@ -123,12 +122,12 @@ int main()
         screen_vao.bind();
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        GUI::render();
+        // GUI::render();
         window.display();
     }
 
     // --------------------------
     // ==== Graceful Cleanup ====
     // --------------------------
-    GUI::shutdown();
+    // GUI::shutdown();
 }

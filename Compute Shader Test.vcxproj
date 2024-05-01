@@ -152,7 +152,6 @@
     <ClCompile Include="src\Graphics\Shader.cpp" />
     <ClCompile Include="src\Graphics\Texture.cpp" />
     <ClCompile Include="src\Graphics\VertexArray.cpp" />
-    <ClCompile Include="src\GUI.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Util.cpp" />
   </ItemGroup>
@@ -190,7 +189,6 @@
     <ClInclude Include="src\Graphics\Shader.h" />
     <ClInclude Include="src\Graphics\Texture.h" />
     <ClInclude Include="src\Graphics\VertexArray.h" />
-    <ClInclude Include="src\GUI.h" />
     <ClInclude Include="src\Util.h" />
   </ItemGroup>
   <ItemGroup>
