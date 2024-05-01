@@ -23,7 +23,7 @@ int main()
     context_settings.minorVersion = 5;
     context_settings.attributeFlags = sf::ContextSettings::Core;
 
-    sf::Window window({1024, 1024}, "OpenGL", sf::Style::Default, context_settings);
+    sf::Window window({1024, 1024}, "Compute Conway Game of Life", sf::Style::Default, context_settings);
     window.setVerticalSyncEnabled(true);
     bool mouse_locked = false;
 

@@ -1,4 +1,6 @@
-# Do not run this - It may crash your pc and is highly experimental
+# Compute Shader Experiemnts
+
+To learn Compute Shaders, Conways Game of Life
 
 ### Resources
 

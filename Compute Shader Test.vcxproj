@@ -160,6 +160,7 @@
     <None Include=".gitignore" />
     <None Include="assets\shaders\Compute.glsl" />
     <None Include="assets\shaders\Conway.compute.glsl" />
+    <None Include="assets\shaders\ConwayCompute.glsl" />
     <None Include="assets\shaders\ScreenFragment.glsl" />
     <None Include="assets\shaders\ScreenVertex.glsl" />
     <None Include="deps\imgui_sfml\LICENSE" />
