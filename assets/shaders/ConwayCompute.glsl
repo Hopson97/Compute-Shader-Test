@@ -26,6 +26,9 @@ void main()
     imageStore(out_screen, pixel_coords, vec4(1,0,1,1));
     ivec2 image_size = imageSize(in_screen);
 
+    float g = float(pixel_coords.x) / float(max(1, image_size.x));
+    float b = float(pixel_coords.y) / float(max(1, image_size.y));
+
     vec4 current = imageLoad(in_screen, pixel_coords);
     bool alive = int(current.r) == 1;
 
@@ -43,7 +46,7 @@ void main()
 
     if (!alive && neighbours == 3) 
     {
-        imageStore(out_screen, pixel_coords, ALIVE);
+        imageStore(out_screen, pixel_coords, vec4(1, g, b, 1));
     }
     else if (alive && (neighbours < 2 || neighbours > 3)) 
     {
