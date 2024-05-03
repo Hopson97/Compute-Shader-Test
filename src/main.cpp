@@ -123,7 +123,6 @@ int main()
         glViewport(0, 0, window.getSize().x, window.getSize().y);
 
         compute_shader.bind();
-
         if (gen % 2 == 0)
         {
             glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);

@@ -6,28 +6,12 @@ layout(rgba32f, binding = 0) uniform readonly image2D in_screen;
 layout(rgba32f, binding = 1) uniform writeonly image2D out_screen;
 
 const vec4 DEAD = vec4(0, 0, 0, 0);
-const vec4 ALIVE = vec4(1, 1, 1, 1);
-
-int get_pixel_value(ivec2 pixel_coords, ivec2 image_size) 
-{
-    if (all(greaterThanEqual(pixel_coords, ivec2(0))) && all(lessThan(pixel_coords, image_size))) 
-    {
-        return int(imageLoad(in_screen, pixel_coords).r);
-    } 
-    else 
-    {
-        return 0;
-    }
-}
 
 void main()
 {
     ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
     imageStore(out_screen, pixel_coords, vec4(1,0,1,1));
     ivec2 image_size = imageSize(in_screen);
-
-    float g = float(pixel_coords.x) / float(max(1, image_size.x));
-    float b = float(pixel_coords.y) / float(max(1, image_size.y));
 
     vec4 current = imageLoad(in_screen, pixel_coords);
     bool alive = int(current.r) == 1;
@@ -40,12 +24,14 @@ void main()
             if (x == 0 && y == 0) {
                 continue;
             }
-            neighbours += get_pixel_value(pixel_coords + ivec2(x, y), image_size);
+            neighbours += int(imageLoad(in_screen, pixel_coords + ivec2(x, y)).r);
         }
     }
 
     if (!alive && neighbours == 3) 
     {
+        float g = float(pixel_coords.x) / float(max(1, image_size.x));
+        float b = float(pixel_coords.y) / float(max(1, image_size.y));
         imageStore(out_screen, pixel_coords, vec4(1, g, b, 1));
     }
     else if (alive && (neighbours < 2 || neighbours > 3)) 
