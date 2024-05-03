@@ -64,26 +64,24 @@ int main()
             image.setPixel(x, y, rand() % 50 > 20 ? sf::Color::Black : sf::Color::White);
         }
     }
+    
+    // Set up the double buffer
     mus::Texture2D screen_texture;
     mus::Texture2D screen_texture2;
     screen_texture.load_from_image(image, 1, mus::TextureInternalFormat::RGBA, mus::TextureFormat::RGBA32F);
-    // screen_texture.create(window.getSize().x, window.getSize().y, 1,
-    //                       mus::TextureFormat::RGBA32F);
-    screen_texture.set_wrap_s(mus::TextureWrap::ClampToEdge);
-    screen_texture.set_wrap_t(mus::TextureWrap::ClampToEdge);
+    screen_texture.set_wrap_s(mus::TextureWrap::Repeat);
+    screen_texture.set_wrap_t(mus::TextureWrap::Repeat);
     screen_texture.set_min_filter(mus::TextureMinFilter::Nearest);
     screen_texture.set_mag_filter(mus::TextureMagFilter::Nearest);
 
     screen_texture2.create(window.getSize().x, window.getSize().y, 1, mus::TextureFormat::RGBA32F);
-    screen_texture2.set_wrap_s(mus::TextureWrap::ClampToEdge);
-    screen_texture2.set_wrap_t(mus::TextureWrap::ClampToEdge);
+    screen_texture2.set_wrap_s(mus::TextureWrap::Repeat);
+    screen_texture2.set_wrap_t(mus::TextureWrap::Repeat);
     screen_texture2.set_min_filter(mus::TextureMinFilter::Nearest);
     screen_texture2.set_mag_filter(mus::TextureMagFilter::Nearest);
 
-    int gen = 0;
-
-    // This is needed for the compute shader
-    // glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+    // The simulation's generation (or frame count)
+    int generation = 0;
 
     sf::Clock timer;
 
@@ -122,8 +120,9 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport(0, 0, window.getSize().x, window.getSize().y);
 
+        // The compute shader uses a double buffer to prevent read/write to same pixel by different work groups
         compute_shader.bind();
-        if (gen % 2 == 0)
+        if (generation % 2 == 0)
         {
             glBindImageTexture(0, screen_texture.id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
             glBindImageTexture(1, screen_texture2.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
@@ -135,7 +134,7 @@ int main()
             glBindImageTexture(1, screen_texture.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
             screen_texture.bind(0);
         }
-        gen++;
+        generation++;
 
         glDispatchCompute(ceil(window.getSize().x / 8), ceil(window.getSize().y / 4), 1);
         glMemoryBarrier(GL_ALL_BARRIER_BITS);
