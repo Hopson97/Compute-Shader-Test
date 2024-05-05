@@ -62,8 +62,7 @@ namespace
             // std::string buffer(length + 1, ' ');
             std::string buffer(2500, ' ');
             glGetShaderInfoLog(shader, 1024, NULL, buffer.data());
-            std::cerr << "Failed to " << to_string(parameter) << " shader :\n"
-                      << buffer << std::endl;
+            std::cerr << "Failed to " << to_string(parameter) << " shader :\n" << buffer << std::endl;
             return false;
         }
         return true;
@@ -83,128 +82,122 @@ namespace
     }
 } // namespace
 
-namespace mus
+Shader::Shader()
 {
+}
 
-    Shader::Shader()
+Shader::~Shader()
+{
+    glDeleteProgram(program_);
+}
+
+bool Shader::load_stage(const std::filesystem::path& file_path, ShaderType shader_type)
+{
+    // Load the files into strings and verify
+    auto source = read_file_to_string(file_path);
+    if (source.length() == 0)
     {
+        return false;
     }
 
-    Shader::~Shader()
+    std::cout << "Compiling " << file_path << ".\n";
+    GLuint shader = compile_shader(source.c_str(), static_cast<GLenum>(shader_type));
+    if (!shader)
     {
-        glDeleteProgram(program_);
+        std::cerr << "Failed to compile shader file " << file_path << ".\n";
+        return false;
+    }
+    stages_.push_back(shader);
+
+    return true;
+}
+
+bool Shader::link_shaders()
+{
+    // Link the shaders together and verify the link status
+    program_ = glCreateProgram();
+    for (auto stage : stages_)
+    {
+        glAttachShader(program_, stage);
+    }
+    glLinkProgram(program_);
+
+    if (!verify_shader(program_, IVParameter::LinkStatus))
+    {
+        std::cerr << "Failed to link shaders\n";
+        return false;
+    }
+    glValidateProgram(program_);
+
+    int status = 0;
+    glGetProgramiv(program_, GL_VALIDATE_STATUS, &status);
+    if (status == GL_FALSE)
+    {
+        std::cerr << "Failed to validate shader program.\n";
+        return false;
     }
 
-    bool Shader::load_stage(const std::filesystem::path& file_path, ShaderType shader_type)
+    // Delete the temporary shaders
+    for (auto& shader : stages_)
     {
-        // Load the files into strings and verify
-        auto source = read_file_to_string(file_path);
-        if (source.length() == 0)
+        glDeleteShader(shader);
+    }
+    stages_.clear();
+    stages_.shrink_to_fit();
+
+    return true;
+}
+
+void Shader::bind() const
+{
+    glUseProgram(program_);
+}
+
+void Shader::set_uniform(const std::string& name, int value)
+{
+    glProgramUniform1i(program_, get_uniform_location(name), value);
+}
+
+void Shader::set_uniform(const std::string& name, float value)
+{
+    glProgramUniform1f(program_, get_uniform_location(name), value);
+}
+
+void Shader::set_uniform(const std::string& name, const glm::vec3& vector)
+{
+    glProgramUniform3fv(program_, get_uniform_location(name), 1, glm::value_ptr(vector));
+}
+
+void Shader::set_uniform(const std::string& name, const glm::vec4& vector)
+{
+    glProgramUniform4fv(program_, get_uniform_location(name), 1, glm::value_ptr(vector));
+}
+
+void Shader::set_uniform(const std::string& name, const glm::mat4& matrix)
+{
+    glProgramUniformMatrix4fv(program_, get_uniform_location(name), 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void Shader::bind_uniform_block_index(const std::string& name, GLuint index)
+{
+    glUniformBlockBinding(program_, glGetUniformBlockIndex(program_, name.c_str()), index);
+}
+
+GLint Shader::get_uniform_location(const std::string& name)
+{
+    auto itr = uniform_locations_.find(name);
+    if (itr == uniform_locations_.end())
+    {
+        auto location = glGetUniformLocation(program_, name.c_str());
+        if (location == -1)
         {
-            return false;
+            std::cerr << "Cannot find uniform location '" << name << "'\n";
+            return 0;
         }
+        uniform_locations_.insert({name, location});
 
-        std::cout << "Compiling " << file_path << ".\n";
-        GLuint shader = compile_shader(source.c_str(), static_cast<GLenum>(shader_type));
-        if (!shader)
-        {
-            std::cerr << "Failed to compile shader file " << file_path << ".\n";
-            return false;
-        }
-        stages_.push_back(shader);
-
-        return true;
+        return location;
     }
 
-    bool Shader::link_shaders()
-    {
-        // Link the shaders together and verify the link status
-        program_ = glCreateProgram();
-        for (auto stage : stages_)
-        {
-            glAttachShader(program_, stage);
-        }
-        glLinkProgram(program_);
-
-        if (!verify_shader(program_, IVParameter::LinkStatus))
-        {
-            std::cerr << "Failed to link shaders\n";
-            return false;
-        }
-        glValidateProgram(program_);
-
-        int status = 0;
-        glGetProgramiv(program_, GL_VALIDATE_STATUS, &status);
-        if (status == GL_FALSE)
-        {
-            std::cerr << "Failed to validate shader program.\n";
-            return false;
-        }
-
-        // Delete the temporary shaders
-        for (auto& shader : stages_)
-        {
-            glDeleteShader(shader);
-        }
-        stages_.clear();
-        stages_.shrink_to_fit();
-
-        return true;
-    }
-
-    void Shader::bind() const
-    {
-        glUseProgram(program_);
-    }
-
-    void Shader::set_uniform(const std::string& name, int value)
-    {
-        glProgramUniform1i(program_, get_uniform_location(name), value);
-    }
-
-    void Shader::set_uniform(const std::string& name, float value)
-    {
-        glProgramUniform1f(program_, get_uniform_location(name), value);
-    }
-
-    void Shader::set_uniform(const std::string& name, const glm::vec3& vector)
-    {
-        glProgramUniform3fv(program_, get_uniform_location(name), 1, glm::value_ptr(vector));
-    }
-
-    void Shader::set_uniform(const std::string& name, const glm::vec4& vector)
-    {
-        glProgramUniform4fv(program_, get_uniform_location(name), 1, glm::value_ptr(vector));
-    }
-
-    void Shader::set_uniform(const std::string& name, const glm::mat4& matrix)
-    {
-        glProgramUniformMatrix4fv(program_, get_uniform_location(name), 1, GL_FALSE,
-                                  glm::value_ptr(matrix));
-    }
-
-    void Shader::bind_uniform_block_index(const std::string& name, GLuint index)
-    {
-        glUniformBlockBinding(program_, glGetUniformBlockIndex(program_, name.c_str()), index);
-    }
-
-    GLint Shader::get_uniform_location(const std::string& name)
-    {
-        auto itr = uniform_locations_.find(name);
-        if (itr == uniform_locations_.end())
-        {
-            auto location = glGetUniformLocation(program_, name.c_str());
-            if (location == -1)
-            {
-                std::cerr << "Cannot find uniform location '" << name << "'\n";
-                return 0;
-            }
-            uniform_locations_.insert({name, location});
-
-            return location;
-        }
-
-        return itr->second;
-    }
-
-} // namespace mus
+    return itr->second;
+}

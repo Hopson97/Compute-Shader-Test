@@ -8,53 +8,50 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-namespace mus
+enum class TextureInternalFormat
 {
+    RGB = GL_RGB,
+    RGBA = GL_RGBA,
+};
 
-    enum class TextureInternalFormat
-    {
-        RGB = GL_RGB,
-        RGBA = GL_RGBA,
-    };
+enum class TextureFormat
+{
+    RGB8 = GL_RGB8,
+    RGBA8 = GL_RGBA8,
+    RGBA16F = GL_RGBA16F,
+    RGBA32F = GL_RGBA32F
+};
 
-    enum class TextureFormat
-    {
-        RGB8 = GL_RGB8,
-        RGBA8 = GL_RGBA8,
-        RGBA16F = GL_RGBA16F,
-        RGBA32F = GL_RGBA32F
-    };
+enum class TextureMinFilter
+{
+    Nearest = GL_NEAREST,
+    Linear = GL_LINEAR,
+    NearestMipmapNearest = GL_NEAREST_MIPMAP_NEAREST,
+    LinearMipmapNearest = GL_LINEAR_MIPMAP_NEAREST,
+    NearestMipmapLinear = GL_NEAREST_MIPMAP_LINEAR,
+    LinearMipmapLinear = GL_LINEAR_MIPMAP_LINEAR,
+};
 
-    enum class TextureMinFilter
-    {
-        Nearest = GL_NEAREST,
-        Linear = GL_LINEAR,
-        NearestMipmapNearest = GL_NEAREST_MIPMAP_NEAREST,
-        LinearMipmapNearest = GL_LINEAR_MIPMAP_NEAREST,
-        NearestMipmapLinear = GL_NEAREST_MIPMAP_LINEAR,
-        LinearMipmapLinear = GL_LINEAR_MIPMAP_LINEAR,
-    };
+enum class TextureMagFilter
+{
+    Nearest = GL_NEAREST,
+    Linear = GL_LINEAR,
+};
 
-    enum class TextureMagFilter
-    {
-        Nearest = GL_NEAREST,
-        Linear = GL_LINEAR,
-    };
+enum class TextureWrap
+{
+    ClampToEdge = GL_CLAMP_TO_EDGE,
+    ClampToBorder = GL_CLAMP_TO_BORDER,
+    MirroredRepeat = GL_MIRRORED_REPEAT,
+    Repeat = GL_REPEAT,
+    MirrorClampToEdge = GL_MIRROR_CLAMP_TO_EDGE,
+};
 
-    enum class TextureWrap
-    {
-        ClampToEdge = GL_CLAMP_TO_EDGE,
-        ClampToBorder = GL_CLAMP_TO_BORDER,
-        MirroredRepeat = GL_MIRRORED_REPEAT,
-        Repeat = GL_REPEAT,
-        MirrorClampToEdge = GL_MIRROR_CLAMP_TO_EDGE,
-    };
+struct GLTextureResource
+{
+    GLuint id = 0;
 
-    struct GLTextureResource
-    {
-        GLuint id = 0;
-
-        // clang-format off
+    // clang-format off
         GLTextureResource(GLenum target) { glCreateTextures(target, 1, &id); }   
         virtual ~GLTextureResource() { if(id != 0) glDeleteTextures(1, &id); }
 
@@ -63,49 +60,48 @@ namespace mus
 
         GLTextureResource& operator=(GLTextureResource&& other) noexcept { id = other.id;  other.id = 0; return *this; }   
         GLTextureResource (GLTextureResource&& other) noexcept : id  (other.id){ other.id = 0; }
-        // clang-format on
+    // clang-format on
 
-        void bind(GLuint unit) const
-        {
-            assert(id);
-            glBindTextureUnit(unit, id);
-        }
-
-        void set_min_filter(TextureMinFilter filter);
-        void set_mag_filter(TextureMagFilter filter);
-        void set_wrap_s(TextureWrap wrap);
-        void set_wrap_t(TextureWrap wrap);
-    };
-
-    struct Texture2D : public GLTextureResource
+    void bind(GLuint unit) const
     {
-        Texture2D();
+        assert(id);
+        glBindTextureUnit(unit, id);
+    }
 
-        GLuint create(GLsizei width, GLsizei height, GLsizei levels = 1, TextureFormat format = TextureFormat::RGBA8);
+    void set_min_filter(TextureMinFilter filter);
+    void set_mag_filter(TextureMagFilter filter);
+    void set_wrap_s(TextureWrap wrap);
+    void set_wrap_t(TextureWrap wrap);
+};
 
-        bool load_from_image(const sf::Image& image, GLsizei levels,
-                             TextureInternalFormat internal_format = TextureInternalFormat::RGBA,
-                             TextureFormat format = TextureFormat::RGBA8);
+struct Texture2D : public GLTextureResource
+{
+    Texture2D();
 
-        bool load_from_file(const std::filesystem::path& path, GLsizei levels, bool flip_vertically,
-                            bool flip_horizontally, TextureInternalFormat internal_format = TextureInternalFormat::RGBA,
-                            TextureFormat format = TextureFormat::RGBA8);
+    GLuint create(GLsizei width, GLsizei height, GLsizei levels = 1, TextureFormat format = TextureFormat::RGBA8);
 
-        bool is_loaded() const;
+    bool load_from_image(const sf::Image& image, GLsizei levels,
+                         TextureInternalFormat internal_format = TextureInternalFormat::RGBA,
+                         TextureFormat format = TextureFormat::RGBA8);
 
-      private:
-        bool is_loaded_ = false;
-    };
+    bool load_from_file(const std::filesystem::path& path, GLsizei levels, bool flip_vertically, bool flip_horizontally,
+                        TextureInternalFormat internal_format = TextureInternalFormat::RGBA,
+                        TextureFormat format = TextureFormat::RGBA8);
 
-    struct CubeMapTexture : public GLTextureResource
-    {
-        CubeMapTexture();
+    bool is_loaded() const;
 
-        bool load_from_file(const std::filesystem::path& folder);
+  private:
+    bool is_loaded_ = false;
+};
 
-        bool is_loaded() const;
+struct CubeMapTexture : public GLTextureResource
+{
+    CubeMapTexture();
 
-      private:
-        bool is_loaded_ = false;
-    };
-} // namespace mus
+    bool load_from_file(const std::filesystem::path& folder);
+
+    bool is_loaded() const;
+
+  private:
+    bool is_loaded_ = false;
+};

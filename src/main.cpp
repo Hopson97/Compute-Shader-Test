@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdlib>
 #include <numbers>
 
@@ -13,6 +15,9 @@
 #include "Graphics/VertexArray.h"
 #include "Util.h"
 
+constexpr int WIDTH = 1024;
+constexpr int HEIGHT = 1024;
+
 int main()
 {
     sf::ContextSettings context_settings;
@@ -23,7 +28,7 @@ int main()
     context_settings.minorVersion = 5;
     context_settings.attributeFlags = sf::ContextSettings::Core;
 
-    sf::Window window({1024, 1024}, "Compute Conway Game of Life", sf::Style::Default, context_settings);
+    sf::Window window({WIDTH, HEIGHT}, "Compute Conway Game of Life", sf::Style::Default, context_settings);
     window.setVerticalSyncEnabled(true);
     bool mouse_locked = false;
 
@@ -34,22 +39,22 @@ int main()
         std::cerr << "Failed to init OpenGL - Is OpenGL linked correctly?\n";
         return -1;
     }
-    glViewport(0, 0, 900, 900);
+    glViewport(0, 0, WIDTH, HEIGHT);
     init_opengl_debugging();
     // GUI::init(&window);
 
-    mus::VertexArray screen_vao;
+    VertexArray screen_vao;
 
-    mus::Shader screen_shader;
-    if (!screen_shader.load_stage("assets/shaders/ScreenVertex.glsl", mus::ShaderType::Vertex) ||
-        !screen_shader.load_stage("assets/shaders/ScreenFragment.glsl", mus::ShaderType::Fragment) ||
+    Shader screen_shader;
+    if (!screen_shader.load_stage("assets/shaders/ScreenVertex.glsl", ShaderType::Vertex) ||
+        !screen_shader.load_stage("assets/shaders/ScreenFragment.glsl", ShaderType::Fragment) ||
         !screen_shader.link_shaders())
     {
         return -1;
     }
 
-    mus::Shader compute_shader;
-    if (!compute_shader.load_stage("assets/shaders/ConwayCompute.glsl", mus::ShaderType::Compute) ||
+    Shader compute_shader;
+    if (!compute_shader.load_stage("assets/shaders/ConwayCompute.glsl", ShaderType::Compute) ||
         !compute_shader.link_shaders())
     {
         return -1;
@@ -64,21 +69,21 @@ int main()
             image.setPixel(x, y, rand() % 50 > 20 ? sf::Color::Black : sf::Color::White);
         }
     }
-    
-    // Set up the double buffer
-    mus::Texture2D screen_texture;
-    mus::Texture2D screen_texture2;
-    screen_texture.load_from_image(image, 1, mus::TextureInternalFormat::RGBA, mus::TextureFormat::RGBA32F);
-    screen_texture.set_wrap_s(mus::TextureWrap::Repeat);
-    screen_texture.set_wrap_t(mus::TextureWrap::Repeat);
-    screen_texture.set_min_filter(mus::TextureMinFilter::Nearest);
-    screen_texture.set_mag_filter(mus::TextureMagFilter::Nearest);
 
-    screen_texture2.create(window.getSize().x, window.getSize().y, 1, mus::TextureFormat::RGBA32F);
-    screen_texture2.set_wrap_s(mus::TextureWrap::Repeat);
-    screen_texture2.set_wrap_t(mus::TextureWrap::Repeat);
-    screen_texture2.set_min_filter(mus::TextureMinFilter::Nearest);
-    screen_texture2.set_mag_filter(mus::TextureMagFilter::Nearest);
+    // Set up the double buffer
+    Texture2D screen_texture;
+    Texture2D screen_texture2;
+    screen_texture.load_from_image(image, 1, TextureInternalFormat::RGBA, TextureFormat::RGBA32F);
+    screen_texture.set_wrap_s(TextureWrap::Repeat);
+    screen_texture.set_wrap_t(TextureWrap::Repeat);
+    screen_texture.set_min_filter(TextureMinFilter::Nearest);
+    screen_texture.set_mag_filter(TextureMagFilter::Nearest);
+
+    screen_texture2.create(window.getSize().x, window.getSize().y, 1, TextureFormat::RGBA32F);
+    screen_texture2.set_wrap_s(TextureWrap::Repeat);
+    screen_texture2.set_wrap_t(TextureWrap::Repeat);
+    screen_texture2.set_min_filter(TextureMinFilter::Nearest);
+    screen_texture2.set_mag_filter(TextureMagFilter::Nearest);
 
     // The simulation's generation (or frame count)
     int generation = 0;
