@@ -22,6 +22,9 @@ add_executable(${PROJECT_NAME}
     src/Graphics/Texture.cpp
     src/Graphics/VertexArray.cpp
 
+    src/Applications/Application.cpp
+    src/Applications/GameOfLife.cpp
+
 )
 
 #Set C++17
