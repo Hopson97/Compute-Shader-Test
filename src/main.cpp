@@ -5,7 +5,7 @@
 #include "Applications/Application.h"
 #include "Applications/GameOfLife.h"
 #include "Applications/Walkson.h"
-#include "Graphics/GLDebugEnable.h"
+#include "Graphics/OpenGL/GLDebugEnable.h"
 
 int main()
 {

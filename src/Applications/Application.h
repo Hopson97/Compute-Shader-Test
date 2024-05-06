@@ -4,9 +4,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../Graphics/Shader.h"
-#include "../Graphics/Texture.h"
-#include "../Graphics/VertexArray.h"
+#include "../Graphics/OpenGL/Shader.h"
+#include "../Graphics/OpenGL/Texture.h"
+#include "../Graphics/OpenGL/VertexArray.h"
 
 constexpr int WIDTH = 1024;
 constexpr int HEIGHT = 1024;

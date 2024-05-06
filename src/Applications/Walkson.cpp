@@ -1,5 +1,6 @@
 #include "Walkson.h"
 
+
 bool Walkson::on_init(sf::Window& window)
 {
     if (!walkson_compute_.load_stage("assets/shaders/Walkson.glsl", ShaderType::Compute) ||
@@ -20,8 +21,21 @@ bool Walkson::on_init(sf::Window& window)
 
 void Walkson::frame(sf::Window& window)
 {
-    // The compute shader uses a double buffer to prevent read/write to same pixel by different work groups
+    // Mouse input
+    /*
+    static auto last_mouse_pos = sf::Mouse::getPosition().x;
+    auto this_frame_mouse_pos = sf::Mouse::getPosition().x;
+    float diff = (this_frame_mouse_pos - last_mouse_pos) / 4.0f;
+    sf::Mouse::setPosition({(int)window.getSize().x / 2, (int)window.getSize().y / 2}, window);
+    last_mouse_pos = sf::Mouse::getPosition().x;
+
+    direction_ = ::rotate(direction_, diff);
+    glm::vec2 plane = ::perpendicular(-plane);*/
+
     walkson_compute_.bind();
+
+
+
     glBindImageTexture(0, screen_texture_.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     glDispatchCompute(ceil(window.getSize().x / 8), ceil(window.getSize().y / 4), 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);

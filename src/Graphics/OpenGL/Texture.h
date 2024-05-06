@@ -38,6 +38,24 @@ enum class TextureMagFilter
     Linear = GL_LINEAR,
 };
 
+enum class TextureCompareFunction
+{
+    LessThanOrEqual = GL_LEQUAL,
+    GreaaterThanOrEqual = GL_GEQUAL,
+    LessThan = GL_LESS,
+    GreaaterThan = GL_GREATER,
+    Equal = GL_EQUAL,
+    NotEqual = GL_NOTEQUAL,
+    Always = GL_ALWAYS,
+    Never = GL_NEVER,
+};
+
+enum class TextureCompareMode
+{
+    CompareReferenceToTexture = GL_COMPARE_REF_TO_TEXTURE,
+    None = GL_NONE
+};
+
 enum class TextureWrap
 {
     ClampToEdge = GL_CLAMP_TO_EDGE,
@@ -47,38 +65,38 @@ enum class TextureWrap
     MirrorClampToEdge = GL_MIRROR_CLAMP_TO_EDGE,
 };
 
+// clang-format off
 struct GLTextureResource
 {
     GLuint id = 0;
 
-    // clang-format off
-        GLTextureResource(GLenum target) { glCreateTextures(target, 1, &id); }   
-        virtual ~GLTextureResource() { if(id != 0) glDeleteTextures(1, &id); }
+    GLTextureResource(GLenum target) { glCreateTextures(target, 1, &id); }   
+    virtual ~GLTextureResource() { if(id != 0) glDeleteTextures(1, &id); }
 
-        GLTextureResource           (const GLTextureResource& other) = delete;  
-        GLTextureResource& operator=(const GLTextureResource& other) = delete;  
+    GLTextureResource           (const GLTextureResource& other) = delete;  
+    GLTextureResource& operator=(const GLTextureResource& other) = delete;  
 
-        GLTextureResource& operator=(GLTextureResource&& other) noexcept { id = other.id;  other.id = 0; return *this; }   
-        GLTextureResource (GLTextureResource&& other) noexcept : id  (other.id){ other.id = 0; }
+    GLTextureResource& operator=(GLTextureResource&& other) noexcept { id = other.id;  other.id = 0; return *this; }   
+    GLTextureResource (GLTextureResource&& other) noexcept : id  (other.id){ other.id = 0; }   
+
+    void bind(GLuint unit) const { assert(id); glBindTextureUnit(unit, id); }
     // clang-format on
-
-    void bind(GLuint unit) const
-    {
-        assert(id);
-        glBindTextureUnit(unit, id);
-    }
 
     void set_min_filter(TextureMinFilter filter);
     void set_mag_filter(TextureMagFilter filter);
     void set_wrap_s(TextureWrap wrap);
     void set_wrap_t(TextureWrap wrap);
+    void set_compare_function(TextureCompareFunction function);
+    void set_compare_mode(TextureCompareMode mode);
 };
 
 struct Texture2D : public GLTextureResource
 {
     Texture2D();
 
-    GLuint create(GLsizei width, GLsizei height, GLsizei levels = 1, TextureFormat format = TextureFormat::RGBA8);
+    GLuint create(GLsizei width, GLsizei height, GLsizei levels = 1,
+                  TextureFormat format = TextureFormat::RGB8);
+    GLuint create_depth_texture(GLsizei width, GLsizei height);
 
     bool load_from_image(const sf::Image& image, GLsizei levels,
                          TextureInternalFormat internal_format = TextureInternalFormat::RGBA,

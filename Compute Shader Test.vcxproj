@@ -148,10 +148,15 @@
     <ClCompile Include="deps\glad\glad.c" />
     <ClCompile Include="deps\imgui_sfml\imgui-SFML.cpp" />
     <ClCompile Include="deps\imgui_sfml\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="src\Graphics\GLDebugEnable.cpp" />
-    <ClCompile Include="src\Graphics\Shader.cpp" />
-    <ClCompile Include="src\Graphics\Texture.cpp" />
-    <ClCompile Include="src\Graphics\VertexArray.cpp" />
+    <ClCompile Include="src\Applications\Application.cpp" />
+    <ClCompile Include="src\Applications\GameOfLife.cpp" />
+    <ClCompile Include="src\Applications\Walkson.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\Framebuffer.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\GLDebugEnable.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\Shader.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\Texture.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\VertexArray.cpp" />
+    <ClCompile Include="src\GUI.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Util.cpp" />
   </ItemGroup>
@@ -163,6 +168,7 @@
     <None Include="assets\shaders\ConwayCompute.glsl" />
     <None Include="assets\shaders\ScreenFragment.glsl" />
     <None Include="assets\shaders\ScreenVertex.glsl" />
+    <None Include="assets\shaders\Walkson.glsl" />
     <None Include="deps\imgui_sfml\LICENSE" />
     <None Include="openal32.dll" />
     <None Include="scripts\build.sh" />
@@ -185,11 +191,16 @@
     <ClInclude Include="deps\imgui_sfml\imgui-SFML_export.h" />
     <ClInclude Include="deps\imgui_sfml\imgui_impl_opengl3.h" />
     <ClInclude Include="deps\imgui_sfml\imgui_inc.h" />
-    <ClInclude Include="src\Graphics\GLDebugEnable.h" />
-    <ClInclude Include="src\Graphics\GLResource.h" />
-    <ClInclude Include="src\Graphics\Shader.h" />
-    <ClInclude Include="src\Graphics\Texture.h" />
-    <ClInclude Include="src\Graphics\VertexArray.h" />
+    <ClInclude Include="src\Applications\Application.h" />
+    <ClInclude Include="src\Applications\GameOfLife.h" />
+    <ClInclude Include="src\Applications\Walkson.h" />
+    <ClInclude Include="src\Graphics\OpenGL\Framebuffer.h" />
+    <ClInclude Include="src\Graphics\OpenGL\GLDebugEnable.h" />
+    <ClInclude Include="src\Graphics\OpenGL\GLResource.h" />
+    <ClInclude Include="src\Graphics\OpenGL\Shader.h" />
+    <ClInclude Include="src\Graphics\OpenGL\Texture.h" />
+    <ClInclude Include="src\Graphics\OpenGL\VertexArray.h" />
+    <ClInclude Include="src\GUI.h" />
     <ClInclude Include="src\Util.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1,15 +1,15 @@
 #pragma once
 
-#include <SFML/Window/Event.hpp>
-#include <SFML/Window/Window.hpp>
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-
 #include <filesystem>
 #include <iostream>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+
+#include <SFML/Window/Event.hpp>
+#include <SFML/Window/Window.hpp>
+#include <glad/glad.h>
+#include <glm/glm.hpp>
 
 enum class ShaderType
 {
@@ -38,6 +38,7 @@ class Shader
 
     void set_uniform(const std::string& name, int value);
     void set_uniform(const std::string& name, float value);
+    void set_uniform(const std::string& name, const glm::vec2& vector);
     void set_uniform(const std::string& name, const glm::vec3& vector);
     void set_uniform(const std::string& name, const glm::vec4& vector);
     void set_uniform(const std::string& name, const glm::mat4& matrix);
