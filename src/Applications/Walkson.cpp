@@ -67,7 +67,6 @@ void Walkson::update_camera(sf::Time dt)
         move *= 10.0f;
     }
     camera_.transform.position += move * dt.asSeconds();
-    camera_.update();
 
     if (!mouse_locked_)
     {
@@ -87,6 +86,7 @@ void Walkson::update_camera(sf::Time dt)
         else if (r.y < 0.0f)
             r.y = 359.9f;
     }
+    camera_.update();
 }
 
 void Walkson::frame(sf::Window& window)
@@ -98,6 +98,9 @@ void Walkson::frame(sf::Window& window)
     // Run the compute shader to create a texture
     glDisable(GL_DEPTH_TEST);
     walkson_compute_.bind();
+    walkson_compute_.set_uniform("inv_projection", glm::inverse(camera_.get_projection()));
+    walkson_compute_.set_uniform("inv_view", glm::inverse(camera_.get_view_matrix()));
+    walkson_compute_.set_uniform("position", camera_.transform.position);
     glBindImageTexture(0, screen_texture_.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     glDispatchCompute(ceil(window.getSize().x / 8), ceil(window.getSize().y / 4), 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -115,10 +118,11 @@ void Walkson::frame(sf::Window& window)
     scene_shader_.set_uniform("view_matrix", camera_.get_view_matrix());
     scene_shader_.set_uniform("model_matrix", create_model_matrix({.position = {5, 0, 5}}));
 
-    cube_texture_.bind(0);
+    //cube_texture_.bind(0);
     cube_mesh_.bind();
     cube_mesh_.draw();
 
+    glBindTexture(GL_TEXTURE_2D, 0);
     scene_shader_.set_uniform("model_matrix", create_model_matrix({.position = {0, -1, 0}}));
     grid_mesh_.bind();
     grid_mesh_.draw(GL_LINES);
