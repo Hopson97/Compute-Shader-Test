@@ -7,7 +7,7 @@ bool GameOfLife::on_init(sf::Window& window)
     if (!game_of_life_compute_.load_stage("assets/shaders/ConwayCompute.glsl", ShaderType::Compute) ||
         !game_of_life_compute_.link_shaders())
     {
-        return -1;
+        return false;
     }
 
     sf::Image image;
@@ -21,7 +21,10 @@ bool GameOfLife::on_init(sf::Window& window)
     }
 
     // Set up the double buffer
-    screen_texture_.load_from_image(image, 1, TextureInternalFormat::RGBA, TextureFormat::RGBA32F);
+    if (!screen_texture_.load_from_image(image, 1, TextureInternalFormat::RGBA, TextureFormat::RGBA32F))
+    {
+        return false;
+    }
     screen_texture_.set_wrap_s(TextureWrap::Repeat);
     screen_texture_.set_wrap_t(TextureWrap::Repeat);
     screen_texture_.set_min_filter(TextureMinFilter::Nearest);
@@ -32,6 +35,8 @@ bool GameOfLife::on_init(sf::Window& window)
     screen_texture2_.set_wrap_t(TextureWrap::Repeat);
     screen_texture2_.set_min_filter(TextureMinFilter::Nearest);
     screen_texture2_.set_mag_filter(TextureMagFilter::Nearest);
+
+    return true;
 }
 
 void GameOfLife::frame(sf::Window& window)

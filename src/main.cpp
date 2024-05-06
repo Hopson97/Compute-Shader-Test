@@ -4,6 +4,7 @@
 
 #include "Applications/Application.h"
 #include "Applications/GameOfLife.h"
+#include "Applications/Walkson.h"
 #include "Graphics/GLDebugEnable.h"
 
 int main()
@@ -31,8 +32,12 @@ int main()
     init_opengl_debugging();
     // GUI::init(&window);
 
-    std::unique_ptr<Application> app = std::make_unique<GameOfLife>();
-    app->init(window);
+    // std::unique_ptr<Application> app = std::make_unique<GameOfLife>();
+    std::unique_ptr<Application> app = std::make_unique<Walkson>();
+    if (!app->init(window))
+    {
+        return -1;
+    }
 
     sf::Clock timer;
 

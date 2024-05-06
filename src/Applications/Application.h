@@ -14,7 +14,7 @@ constexpr int HEIGHT = 1024;
 class Application
 {
   public:
-    bool init(sf::Window& window);
+    [[nodiscard]] bool init(sf::Window& window);
 
     virtual void frame(sf::Window& window) = 0;
 
