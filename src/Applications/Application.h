@@ -16,6 +16,10 @@ class Application
   public:
     [[nodiscard]] bool init(sf::Window& window);
 
+    virtual void handle_event([[maybe_unused]] sf::Event event)
+    {
+    }
+
     virtual void frame(sf::Window& window) = 0;
 
   protected:

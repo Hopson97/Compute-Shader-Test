@@ -51,6 +51,7 @@ int main()
         sf::Event e;
         while (window.pollEvent(e))
         {
+            app->handle_event(e);
             // GUI::event(window, e);
             if (e.type == sf::Event::Closed)
                 window.close();
