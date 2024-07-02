@@ -23,7 +23,7 @@ class Walkson : public Application
 
     PerspectiveCamera camera_;
 
-    Mesh cube_mesh_ = generate_cube_mesh({1, 1, 1});
+    Mesh cube_mesh_ = generate_cube_mesh({2, 2, 2});
     Mesh grid_mesh_ = generate_grid_mesh(10);
     Texture2D cube_texture_;
 

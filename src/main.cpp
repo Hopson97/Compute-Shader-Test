@@ -17,7 +17,7 @@ int main()
     context_settings.minorVersion = 5;
     context_settings.attributeFlags = sf::ContextSettings::Core;
 
-    sf::Window window({WIDTH, HEIGHT}, "Compute Conway Game of Life", sf::Style::Default, context_settings);
+    sf::Window window({WIDTH, HEIGHT}, "Compute Shader Tests", sf::Style::Close, context_settings);
     window.setVerticalSyncEnabled(true);
     bool mouse_locked = false;
 
@@ -53,18 +53,29 @@ int main()
         {
             app->handle_event(e);
             // GUI::event(window, e);
-            if (e.type == sf::Event::Closed)
-                window.close();
-            else if (e.type == sf::Event::KeyReleased)
+
+            switch (e.type)
             {
-                if (e.key.code == sf::Keyboard::Escape)
-                {
+                case sf::Event::Closed:
                     window.close();
-                }
-                else if (e.key.code == sf::Keyboard::L)
-                {
-                    mouse_locked = !mouse_locked;
-                }
+                    break;
+
+                case sf::Event::KeyReleased:
+                    switch (e.key.code)
+                    {
+                        case sf::Keyboard::Escape:
+                            window.close();
+                            break;
+
+                        case sf::Keyboard::L:
+                            mouse_locked = !mouse_locked;
+                            break;
+                        default:
+                            break;
+                    }
+
+                default:
+                    break;
             }
         }
         if (!window.isOpen())

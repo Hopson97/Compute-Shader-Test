@@ -14,7 +14,18 @@ struct Ray {
 };
 
 
-
+bool interesect_cube(Ray ray, vec3 cube_min, vec3 cube_max) {
+    vec3 t_min = (cube_min - ray.origin) / ray.direction;
+    vec3 t_max = (cube_max - ray.origin) / ray.direction;
+    
+    vec3 t1 = min(t_min, t_max);
+    vec3 t2 = max(t_min, t_max);
+    
+    float t_near = max(max(t1.x, t1.y), t1.z);
+    float t_far = min(min(t2.x, t2.y), t2.z);
+    
+    return t_near < t_far;
+}
 
 
 void main() {
@@ -35,6 +46,12 @@ void main() {
 
 	Ray ray = Ray(position, ray_direction);
 
-
-	imageStore(out_image, pixel_coords, vec4((ray.direction.r + 1) / 2, (ray.direction.g + 1) / 2, (ray.direction.b + 1) / 2, 1));
+    if (interesect_cube(ray, vec3(0,0,0), vec3(1, 1, 1))) 
+    {
+        imageStore(out_image, pixel_coords, vec4(1.0, 0.0, 0.0, 1.0));
+    } 
+    else 
+    {
+        imageStore(out_image, pixel_coords, vec4((ray.direction.r + 1) / 2, (ray.direction.g + 1) / 2, (ray.direction.b + 1) / 2, 1));
+    }
 }
