@@ -13,10 +13,15 @@ struct Ray {
 	vec3 direction;
 };
 
+struct Cube {
+	vec3 origin;
+	vec3 size;
+};
 
-bool interesect_cube(Ray ray, vec3 cube_min, vec3 cube_max) {
-    vec3 t_min = (cube_min - ray.origin) / ray.direction;
-    vec3 t_max = (cube_max - ray.origin) / ray.direction;
+
+bool interesect_cube(Ray ray, Cube cube) {
+    vec3 t_min = (cube.origin - ray.origin) / ray.direction;
+    vec3 t_max = ((cube.origin + cube.size) - ray.origin) / ray.direction;
     
     vec3 t1 = min(t_min, t_max);
     vec3 t2 = max(t_min, t_max);
@@ -27,8 +32,17 @@ bool interesect_cube(Ray ray, vec3 cube_min, vec3 cube_max) {
     return t_near < t_far;
 }
 
+#define NUM_CUBES 3
 
-void main() {
+const Cube cubes[NUM_CUBES] = { 
+    Cube(vec3(1,1,1), vec3(2, 2, 2)),
+    Cube(vec3(8,5,7), vec3(1, 14, 1)),
+    Cube(vec3(4,3,4), vec3(2, 5, 3)),
+};
+
+
+void main() 
+{
 	// Set up initial data
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 	vec2 image_size = imageSize(out_image);
@@ -46,9 +60,18 @@ void main() {
 
 	Ray ray = Ray(position, ray_direction);
 
-    if (interesect_cube(ray, vec3(0,0,0), vec3(1, 1, 1))) 
+    bool hit_cube = false;
+    for (int i = 0; i < NUM_CUBES; i++)
     {
-        imageStore(out_image, pixel_coords, vec4(1.0, 0.0, 0.0, 1.0));
+        if (interesect_cube(ray, cubes[i]))
+        {
+            hit_cube = true;
+        } 
+    }
+
+    if (hit_cube)
+    {
+        imageStore(out_image, pixel_coords, vec4((ray.direction.r + 1) / 2 - 0.1, (ray.direction.g + 1) / 2 - 0.1, (ray.direction.b + 1) / 2 - 0.1, 1));
     } 
     else 
     {
