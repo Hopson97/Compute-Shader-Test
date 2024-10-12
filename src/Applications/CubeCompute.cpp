@@ -1,15 +1,15 @@
-#include "Walkson.h"
+#include "CubeCompute.h"
 
 #include "../Graphics/Maths.h"
 
-bool Walkson::on_init(sf::Window& window)
+bool CubeCompute::on_init(sf::Window& window)
 {
 
     window_ = &window;
     camera_.init(window.getSize().x, window.getSize().y, 90);
 
-    if (!walkson_compute_.load_stage("assets/shaders/Walkson.glsl", ShaderType::Compute) ||
-        !walkson_compute_.link_shaders())
+    if (!cube_compute.load_stage("assets/shaders/CubeCompute.glsl", ShaderType::Compute) ||
+        !cube_compute.link_shaders())
     {
         return false;
     }
@@ -40,7 +40,7 @@ bool Walkson::on_init(sf::Window& window)
     return true;
 }
 
-void Walkson::update_camera(sf::Time dt)
+void CubeCompute::update_camera(sf::Time dt)
 {
     // Keyboard Input
     glm::vec3 move{0.0f};
@@ -89,7 +89,7 @@ void Walkson::update_camera(sf::Time dt)
     camera_.update();
 }
 
-void Walkson::frame(sf::Window& window)
+void CubeCompute::frame(sf::Window& window)
 {
     // Update the camera from keyboard/ mouse
     static sf::Clock clock;
@@ -97,10 +97,10 @@ void Walkson::frame(sf::Window& window)
 
     // Run the compute shader to create a texture
     glDisable(GL_DEPTH_TEST);
-    walkson_compute_.bind();
-    walkson_compute_.set_uniform("inv_projection", glm::inverse(camera_.get_projection()));
-    walkson_compute_.set_uniform("inv_view", glm::inverse(camera_.get_view_matrix()));
-    walkson_compute_.set_uniform("position", camera_.transform.position);
+    cube_compute.bind();
+    cube_compute.set_uniform("inv_projection", glm::inverse(camera_.get_projection()));
+    cube_compute.set_uniform("inv_view", glm::inverse(camera_.get_view_matrix()));
+    cube_compute.set_uniform("position", camera_.transform.position);
     glBindImageTexture(0, screen_texture_.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     glDispatchCompute(ceil(window.getSize().x / 8), ceil(window.getSize().y / 4), 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -118,7 +118,7 @@ void Walkson::frame(sf::Window& window)
     scene_shader_.set_uniform("view_matrix", camera_.get_view_matrix());
     scene_shader_.set_uniform("model_matrix", create_model_matrix({.position = {5, 0, 5}}));
 
-    //cube_texture_.bind(0);
+    // cube_texture_.bind(0);
     cube_mesh_.bind();
     cube_mesh_.draw();
 
@@ -128,7 +128,7 @@ void Walkson::frame(sf::Window& window)
     grid_mesh_.draw(GL_LINES);
 }
 
-void Walkson::handle_event(sf::Event event)
+void CubeCompute::handle_event(sf::Event event)
 {
     if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::L)
     {

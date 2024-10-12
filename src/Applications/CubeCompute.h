@@ -5,7 +5,7 @@
 
 #include "Application.h"
 
-class Walkson : public Application
+class CubeCompute : public Application
 {
   public:
     bool on_init(sf::Window& window) override;
@@ -17,7 +17,7 @@ class Walkson : public Application
   private:
     void update_camera(sf::Time dt);
 
-    Shader walkson_compute_;
+    Shader cube_compute;
     Shader scene_shader_;
     Texture2D screen_texture_;
 

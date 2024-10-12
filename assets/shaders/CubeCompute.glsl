@@ -8,18 +8,21 @@ uniform mat4 inv_view;
 
 uniform vec3 position;
 
-struct Ray {
+struct Ray 
+{
 	vec3 origin;
 	vec3 direction;
 };
 
-struct Cube {
+struct Cube 
+{
 	vec3 origin;
 	vec3 size;
 };
 
 
-bool interesect_cube(Ray ray, Cube cube) {
+bool interesect_cube(Ray ray, Cube cube) 
+{
     vec3 t_min = (cube.origin - ray.origin) / ray.direction;
     vec3 t_max = ((cube.origin + cube.size) - ray.origin) / ray.direction;
     
@@ -32,12 +35,12 @@ bool interesect_cube(Ray ray, Cube cube) {
     return t_near < t_far;
 }
 
-#define NUM_CUBES 3
+#define NUM_CUBES 1
 
 const Cube cubes[NUM_CUBES] = { 
     Cube(vec3(1,1,1), vec3(2, 2, 2)),
-    Cube(vec3(8,5,7), vec3(1, 14, 1)),
-    Cube(vec3(4,3,4), vec3(2, 5, 3)),
+    //Cube(vec3(8,5,7), vec3(1, 14, 1)),
+    //Cube(vec3(4,3,4), vec3(2, 5, 3)),
 };
 
 

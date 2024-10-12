@@ -3,8 +3,8 @@
 #include <SFML/Window/Event.hpp>
 
 #include "Applications/Application.h"
+#include "Applications/CubeCompute.h"
 #include "Applications/GameOfLife.h"
-#include "Applications/Walkson.h"
 #include "Graphics/OpenGL/GLDebugEnable.h"
 
 int main()
@@ -33,7 +33,7 @@ int main()
     // GUI::init(&window);
 
     // std::unique_ptr<Application> app = std::make_unique<GameOfLife>();
-    std::unique_ptr<Application> app = std::make_unique<Walkson>();
+    std::unique_ptr<Application> app = std::make_unique<CubeCompute>();
     if (!app->init(window))
     {
         return -1;
