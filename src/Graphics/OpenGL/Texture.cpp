@@ -9,11 +9,11 @@
 //=======================
 namespace
 {
-    constexpr std::array<const char*, 6> CUBE_TEXTURE_NAMES = {"right.png",  "left.png", "top.png",
-                                                               "bottom.png", "back.png", "front.png"};
+    const std::array<std::string, 6> CUBE_TEXTURE_NAMES = {"right.png",  "left.png", "top.png",
+                                                           "bottom.png", "back.png", "front.png"};
 
-    bool load_image_from_file(const std::filesystem::path& path, bool flip_vertically, bool flip_horizontally,
-                              sf::Image& out_image)
+    bool load_image_from_file(const std::filesystem::path& path, bool flip_vertically,
+                              bool flip_horizontally, sf::Image& out_image)
     {
         if (!out_image.loadFromFile(path.string()))
         {
@@ -60,8 +60,20 @@ void GLTextureResource::set_wrap_t(TextureWrap wrap)
     glTextureParameteri(id, GL_TEXTURE_WRAP_T, static_cast<GLenum>(wrap));
 }
 
-//===============================
-// == Texture2D Implementation ==
+void GLTextureResource::set_compare_function(TextureCompareFunction function)
+{
+    assert(id != 0);
+    glTextureParameteri(id, GL_TEXTURE_COMPARE_FUNC, static_cast<GLenum>(function));
+}
+
+void GLTextureResource::set_compare_mode(TextureCompareMode mode)
+{
+    assert(id != 0);
+    glTextureParameteri(id, GL_TEXTURE_COMPARE_MODE, static_cast<GLenum>(mode));
+}
+
+//================================
+// == Texture2D Implementation ===
 //================================
 Texture2D::Texture2D()
     : GLTextureResource(GL_TEXTURE_2D)
@@ -74,6 +86,23 @@ GLuint Texture2D::create(GLsizei width, GLsizei height, GLsizei levels, TextureF
 
     set_min_filter(TextureMinFilter::Linear);
     set_mag_filter(TextureMagFilter::Linear);
+
+    return id;
+}
+
+GLuint Texture2D::create_depth_texture(GLsizei width, GLsizei height)
+{
+    // As there is not DSA equivalent for glTexImage2D, traditional binding must be used to create
+    // a texture with GL_DEPTH_COMPONENT - hence binding to unit 0 before creating the texture
+    bind(0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT,
+                 GL_FLOAT, nullptr);
+    set_min_filter(TextureMinFilter::Linear);
+    set_mag_filter(TextureMagFilter::Linear);
+    set_wrap_s(TextureWrap::ClampToEdge);
+    set_wrap_t(TextureWrap::ClampToEdge);
+    set_compare_function(TextureCompareFunction::LessThanOrEqual);
+    set_compare_mode(TextureCompareMode::CompareReferenceToTexture);
 
     return id;
 }
@@ -116,6 +145,9 @@ bool Texture2D::is_loaded() const
     return is_loaded_;
 }
 
+//======================================
+// == Cubemap Texture Implementation ===
+//======================================
 CubeMapTexture::CubeMapTexture()
     : GLTextureResource(GL_TEXTURE_CUBE_MAP)
 {
@@ -156,7 +188,6 @@ bool CubeMapTexture::load_from_file(const std::filesystem::path& folder)
     set_mag_filter(TextureMagFilter::Linear);
     set_wrap_s(TextureWrap::ClampToEdge);
     set_wrap_t(TextureWrap::ClampToEdge);
-    return created;
 }
 
 bool CubeMapTexture::is_loaded() const

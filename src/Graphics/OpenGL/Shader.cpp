@@ -4,7 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-#include "../Util.h"
+#include "../../Util.h"
 
 namespace
 {
@@ -161,6 +161,11 @@ void Shader::set_uniform(const std::string& name, int value)
 void Shader::set_uniform(const std::string& name, float value)
 {
     glProgramUniform1f(program_, get_uniform_location(name), value);
+}
+
+void Shader::set_uniform(const std::string& name, const glm::vec2& vector)
+{
+    glProgramUniform2fv(program_, get_uniform_location(name), 1, glm::value_ptr(vector));
 }
 
 void Shader::set_uniform(const std::string& name, const glm::vec3& vector)

@@ -24,6 +24,7 @@ add_executable(${PROJECT_NAME}
 
     src/Applications/Application.cpp
     src/Applications/GameOfLife.cpp
+    src/Applications/CubeCompute.cpp
 
 )
 

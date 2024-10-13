@@ -3,8 +3,9 @@
 #include <SFML/Window/Event.hpp>
 
 #include "Applications/Application.h"
+#include "Applications/CubeCompute.h"
 #include "Applications/GameOfLife.h"
-#include "Graphics/GLDebugEnable.h"
+#include "Graphics/OpenGL/GLDebugEnable.h"
 
 int main()
 {
@@ -16,7 +17,7 @@ int main()
     context_settings.minorVersion = 5;
     context_settings.attributeFlags = sf::ContextSettings::Core;
 
-    sf::Window window({WIDTH, HEIGHT}, "Compute Conway Game of Life", sf::Style::Default, context_settings);
+    sf::Window window({WIDTH, HEIGHT}, "Compute Shader Tests", sf::Style::Close, context_settings);
     window.setVerticalSyncEnabled(true);
     bool mouse_locked = false;
 
@@ -31,8 +32,12 @@ int main()
     init_opengl_debugging();
     // GUI::init(&window);
 
-    std::unique_ptr<Application> app = std::make_unique<GameOfLife>();
-    app->init(window);
+    // std::unique_ptr<Application> app = std::make_unique<GameOfLife>();
+    std::unique_ptr<Application> app = std::make_unique<CubeCompute>();
+    if (!app->init(window))
+    {
+        return -1;
+    }
 
     sf::Clock timer;
 
@@ -46,19 +51,31 @@ int main()
         sf::Event e;
         while (window.pollEvent(e))
         {
+            app->handle_event(e);
             // GUI::event(window, e);
-            if (e.type == sf::Event::Closed)
-                window.close();
-            else if (e.type == sf::Event::KeyReleased)
+
+            switch (e.type)
             {
-                if (e.key.code == sf::Keyboard::Escape)
-                {
+                case sf::Event::Closed:
                     window.close();
-                }
-                else if (e.key.code == sf::Keyboard::L)
-                {
-                    mouse_locked = !mouse_locked;
-                }
+                    break;
+
+                case sf::Event::KeyReleased:
+                    switch (e.key.code)
+                    {
+                        case sf::Keyboard::Escape:
+                            window.close();
+                            break;
+
+                        case sf::Keyboard::L:
+                            mouse_locked = !mouse_locked;
+                            break;
+                        default:
+                            break;
+                    }
+
+                default:
+                    break;
             }
         }
         if (!window.isOpen())

@@ -4,9 +4,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../Graphics/Shader.h"
-#include "../Graphics/Texture.h"
-#include "../Graphics/VertexArray.h"
+#include "../Graphics/OpenGL/Shader.h"
+#include "../Graphics/OpenGL/Texture.h"
+#include "../Graphics/OpenGL/VertexArray.h"
 
 constexpr int WIDTH = 1024;
 constexpr int HEIGHT = 1024;
@@ -14,7 +14,11 @@ constexpr int HEIGHT = 1024;
 class Application
 {
   public:
-    bool init(sf::Window& window);
+    [[nodiscard]] bool init(sf::Window& window);
+
+    virtual void handle_event([[maybe_unused]] sf::Event event)
+    {
+    }
 
     virtual void frame(sf::Window& window) = 0;
 
