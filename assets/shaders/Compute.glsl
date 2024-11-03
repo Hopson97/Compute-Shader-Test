@@ -18,14 +18,6 @@ void main()
 		-(float(pixel_coords.y * 2 - image_size.y) / image_size.y),
 	};
 	
-	// Convert ndc to be between 0 and 1
-	vec2 ndc2 = {
-		(ndc.x + 1) / 2,
-		(ndc.y + 1 )/ 2,
-	};
-	pixel.r = ndc2.r;
-	pixel.g = ndc2.g;
-	
 
 	vec3 ray_origin = {
 		ndc.x, ndc.y, 0.0

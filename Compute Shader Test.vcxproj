@@ -148,10 +148,18 @@
     <ClCompile Include="deps\glad\glad.c" />
     <ClCompile Include="deps\imgui_sfml\imgui-SFML.cpp" />
     <ClCompile Include="deps\imgui_sfml\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="src\Graphics\GLDebugEnable.cpp" />
-    <ClCompile Include="src\Graphics\Shader.cpp" />
-    <ClCompile Include="src\Graphics\Texture.cpp" />
-    <ClCompile Include="src\Graphics\VertexArray.cpp" />
+    <ClCompile Include="src\Applications\Application.cpp" />
+    <ClCompile Include="src\Applications\GameOfLife.cpp" />
+    <ClCompile Include="src\Applications\CubeCompute.cpp" />
+    <ClCompile Include="src\Graphics\Camera.cpp" />
+    <ClCompile Include="src\Graphics\Maths.cpp" />
+    <ClCompile Include="src\Graphics\Mesh.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\Framebuffer.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\GLDebugEnable.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\Shader.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\Texture.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\VertexArray.cpp" />
+    <ClCompile Include="src\GUI.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Util.cpp" />
   </ItemGroup>
@@ -161,6 +169,9 @@
     <None Include="assets\shaders\Compute.glsl" />
     <None Include="assets\shaders\Conway.compute.glsl" />
     <None Include="assets\shaders\ConwayCompute.glsl" />
+    <None Include="assets\shaders\CubeCompute.glsl" />
+    <None Include="assets\shaders\SceneFragment.glsl" />
+    <None Include="assets\shaders\SceneVertex.glsl" />
     <None Include="assets\shaders\ScreenFragment.glsl" />
     <None Include="assets\shaders\ScreenVertex.glsl" />
     <None Include="deps\imgui_sfml\LICENSE" />
@@ -185,11 +196,19 @@
     <ClInclude Include="deps\imgui_sfml\imgui-SFML_export.h" />
     <ClInclude Include="deps\imgui_sfml\imgui_impl_opengl3.h" />
     <ClInclude Include="deps\imgui_sfml\imgui_inc.h" />
-    <ClInclude Include="src\Graphics\GLDebugEnable.h" />
-    <ClInclude Include="src\Graphics\GLResource.h" />
-    <ClInclude Include="src\Graphics\Shader.h" />
-    <ClInclude Include="src\Graphics\Texture.h" />
-    <ClInclude Include="src\Graphics\VertexArray.h" />
+    <ClInclude Include="src\Applications\Application.h" />
+    <ClInclude Include="src\Applications\GameOfLife.h" />
+    <ClInclude Include="src\Applications\CubeCompute.h" />
+    <ClInclude Include="src\Graphics\Camera.h" />
+    <ClInclude Include="src\Graphics\Maths.h" />
+    <ClInclude Include="src\Graphics\Mesh.h" />
+    <ClInclude Include="src\Graphics\OpenGL\Framebuffer.h" />
+    <ClInclude Include="src\Graphics\OpenGL\GLDebugEnable.h" />
+    <ClInclude Include="src\Graphics\OpenGL\GLResource.h" />
+    <ClInclude Include="src\Graphics\OpenGL\Shader.h" />
+    <ClInclude Include="src\Graphics\OpenGL\Texture.h" />
+    <ClInclude Include="src\Graphics\OpenGL\VertexArray.h" />
+    <ClInclude Include="src\GUI.h" />
     <ClInclude Include="src\Util.h" />
   </ItemGroup>
   <ItemGroup>

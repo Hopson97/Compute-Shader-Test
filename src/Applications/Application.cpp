@@ -6,8 +6,8 @@ bool Application::init(sf::Window& window)
         !screen_shader_.load_stage("assets/shaders/ScreenFragment.glsl", ShaderType::Fragment) ||
         !screen_shader_.link_shaders())
     {
-        return -1;
+        return false;
     }
 
-    on_init(window);
+    return on_init(window);
 }
