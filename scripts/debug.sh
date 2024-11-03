@@ -1,4 +1,4 @@
 #!/bin/bash
 
 ./scripts/build.sh
-gdb ./build/debug/bin/compute_tests 
+gdb ./build/debug/PROJECT_NAME_PLACEHOLDER  

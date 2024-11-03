@@ -2,7 +2,7 @@
 
 if [ "$1" = "release" ]
 then
-    ./build/release/bin/compute_tests 
+    ./build/release/PROJECT_NAME_PLACEHOLDER
 else
-    ./build/debug/bin/compute_tests 
+    ./build/debug/PROJECT_NAME_PLACEHOLDER
 fi

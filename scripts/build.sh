@@ -1,3 +1,5 @@
+#!/bin/bash
+
 target_release() {
     cd release
     cmake -DCMAKE_BUILD_TYPE=Release ../..
@@ -17,34 +19,29 @@ target_debug() {
 # Create folder for distribution
 if [ "$1" = "release" ]
 then
-    if [ -d "$compute_tests " ]
+    if [ -d "$PROJECT_NAME_PLACEHOLDER" ]
     then
-        rm -rf -d compute_tests 
+        rm -rf -d PROJECT_NAME_PLACEHOLDER
     fi
 
-    mkdir -p compute_tests 
+    mkdir -p PROJECT_NAME_PLACEHOLDER
 fi
 
 # Creates the folder for the buildaries
-mkdir -p compute_tests
-mkdir -p compute_tests/assets
+mkdir -p PROJECT_NAME_PLACEHOLDER 
+mkdir -p PROJECT_NAME_PLACEHOLDER/assets
 mkdir -p build
 mkdir -p build/release
 mkdir -p build/debug
 cd build
 
-if [ "$1" = "install" ]
-then
-    conan install .. -s compiler.libcxx=libstdc++11 --build=missing
-fi
-
 # Builds target
 if [ "$1" = "release" ]
 then
     target_release
-    cp build/release/bin/compute_tests  compute_tests/compute_tests 
+    cp build/release/PROJECT_NAME_PLACEHOLDER PROJECT_NAME_PLACEHOLDER/PROJECT_NAME_PLACEHOLDER
 else
     target_debug
 fi
 
-cp -R assets compute_tests/
+cp -R assets PROJECT_NAME_PLACEHOLDER/
