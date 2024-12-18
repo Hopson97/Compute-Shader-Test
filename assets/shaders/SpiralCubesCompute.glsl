@@ -26,6 +26,20 @@ mat2 rotate_2d(float angle)
 
 
 // https://jbaker.graphics/writings/DEC.html
+float crazy_fracal2( vec3 p ) 
+{
+    p.xz=fract(p.xz)-.5;
+    float k=1.;
+    float s=0.;
+    for(int i=0;i++<5;)
+      s=2./clamp(dot(p,p),.1,1.),
+      p=abs(p)*s-vec3(.5,3,.5),
+      k*=s;
+    return length(p)/k-.001;
+
+}
+
+// https://jbaker.graphics/writings/DEC.html
 float crazy_fracal( vec3 p0 ) 
 {
     vec4 p = vec4(p0, 1.0);
@@ -54,10 +68,39 @@ float sd_box(vec3 p, vec3 size)
     return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
 }
 
+float map2(vec3 p) 
+{
+    // Continuously move the camera forwards
+    p.z += time;
+
+    p.x += 1.0;
+    p.y -= 0.5;
+
+    // Move the camera in a circle
+    p.y += sin(time) * 0.25;
+    p.x += cos(time) * 0.25;
+
+    // Rotate the shape
+    p.xy *= rotate_2d(sin(time) / 4 );
+    p.xy *= rotate_2d(cos(time) / 4 );
+    float fractal = crazy_fracal(p);// * (sin(time) + 2.0) / 2.0;
+
+    // Create an infinite field of torus
+    //p.xy = fract(p.xy) - 0.5;
+    //p.z = mod(p.z, 0.2) - 0.1;
+    // float box =  sd_box(p, vec3(0.01));
+
+    return fractal;
+}
+
 float map(vec3 p) 
 {
     // Continuously move the camera forwards
     p.z += time * 0.5;
+
+    
+    p.x += 0.5;
+
 
     // Move the camera in a circle
     p.y += sin(time);
@@ -79,7 +122,6 @@ float map(vec3 p)
 }
 
 
-
 void main() 
 {
 	// Set up initial data
@@ -90,7 +132,7 @@ void main()
 	vec2 uv = (pixel_coords * 2.0 - image_size.xy) / image_size.y;
 
     // Ray origin point 
-    vec3 ro = vec3(0, 0, -3);
+    vec3 ro = vec3(0, 1, -3);
     
     // Ray direction
     float fov = 1.0;;
@@ -106,7 +148,7 @@ void main()
         vec3 ray_position = ro + rd * t;
 
         // Spiral the ray as it gets further from the camera
-        ray_position.xy *= rotate_2d(t * 0.9) * atan(time, sin(time));
+        ray_position.xy *= rotate_2d(t * 0.6) * atan(time, cos(time) * sin(time));
 
         float dist = map(ray_position);
         t += dist;
