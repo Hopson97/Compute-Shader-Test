@@ -151,6 +151,7 @@
     <ClCompile Include="src\Applications\Application.cpp" />
     <ClCompile Include="src\Applications\GameOfLife.cpp" />
     <ClCompile Include="src\Applications\CubeCompute.cpp" />
+    <ClCompile Include="src\Applications\SignedDistanceFields.cpp" />
     <ClCompile Include="src\Graphics\Camera.cpp" />
     <ClCompile Include="src\Graphics\Maths.cpp" />
     <ClCompile Include="src\Graphics\Mesh.cpp" />
@@ -174,6 +175,7 @@
     <None Include="assets\shaders\SceneVertex.glsl" />
     <None Include="assets\shaders\ScreenFragment.glsl" />
     <None Include="assets\shaders\ScreenVertex.glsl" />
+    <None Include="assets\shaders\SpiralCubesCompute.glsl" />
     <None Include="deps\imgui_sfml\LICENSE" />
     <None Include="openal32.dll" />
     <None Include="scripts\build.sh" />
@@ -199,6 +201,7 @@
     <ClInclude Include="src\Applications\Application.h" />
     <ClInclude Include="src\Applications\GameOfLife.h" />
     <ClInclude Include="src\Applications\CubeCompute.h" />
+    <ClInclude Include="src\Applications\SignedDistanceFields.h" />
     <ClInclude Include="src\Graphics\Camera.h" />
     <ClInclude Include="src\Graphics\Maths.h" />
     <ClInclude Include="src\Graphics\Mesh.h" />

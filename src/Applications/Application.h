@@ -8,8 +8,8 @@
 #include "../Graphics/OpenGL/Texture.h"
 #include "../Graphics/OpenGL/VertexArray.h"
 
-constexpr int WIDTH = 1024;
-constexpr int HEIGHT = 1024;
+constexpr int WIDTH = 1600;
+constexpr int HEIGHT = 900;
 
 class Application
 {

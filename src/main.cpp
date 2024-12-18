@@ -5,6 +5,7 @@
 #include "Applications/Application.h"
 #include "Applications/CubeCompute.h"
 #include "Applications/GameOfLife.h"
+#include "Applications/SignedDistanceFields.h"
 #include "Graphics/OpenGL/GLDebugEnable.h"
 
 int main()
@@ -33,7 +34,8 @@ int main()
     // GUI::init(&window);
 
     // std::unique_ptr<Application> app = std::make_unique<GameOfLife>();
-    std::unique_ptr<Application> app = std::make_unique<CubeCompute>();
+    //std::unique_ptr<Application> app = std::make_unique<CubeCompute>();
+    std::unique_ptr<Application> app = std::make_unique<SignedDistanceFields>();
     if (!app->init(window))
     {
         return -1;
