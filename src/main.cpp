@@ -2,6 +2,7 @@
 
 #include <SFML/Window/Window.hpp>
 #include <glad/glad.h>
+#include <imgui.h>
 
 #include "Applications/CubeCompute.h"
 #include "Applications/GameOfLife.h"
@@ -27,8 +28,10 @@ int main()
     context_settings.minorVersion = 5;
     context_settings.attributeFlags = sf::ContextSettings::Core;
 
-    sf::Window window{
-        {WIDTH, HEIGHT}, "Compute Shaders - Press F1 For Debug", sf::Style::Default, context_settings};
+    sf::Window window{{WIDTH, HEIGHT},
+                      "Compute Shaders - Press F1 For Debug",
+                      sf::Style::Default,
+                      context_settings};
     window.setVerticalSyncEnabled(true);
     window.setActive(true);
 
@@ -107,6 +110,32 @@ int main()
         {
             profiler.gui();
         }
+
+        if (ImGui::Begin("Switch Application Type"))
+        {
+            bool update = false;
+            if (ImGui::Button("Game Of Life"))
+            {
+                update = true;
+                app = std::make_unique<GameOfLife>();
+            }
+            if (ImGui::Button("Cubes"))
+            {
+                update = true;
+                app = std::make_unique<CubeCompute>();
+            }
+            if (ImGui::Button("SignedDistanceFields"))
+            {
+                update = true;
+                app = std::make_unique<SignedDistanceFields>();
+            }
+
+            if (update && !app->init(window))
+            {
+                break;
+            }
+        }
+        ImGui::End();
 
         // --------------------------
         // ==== End Frame ====
