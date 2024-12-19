@@ -11,6 +11,12 @@ layout(rgba32f, binding = 0) uniform writeonly image2D out_image;
 #define KIND_FRACTAL2 3
 #define KIND_FRACTAL_MIX 4
 #define KIND_FRACTAL3 5
+#define KIND_FRACTAL4 6
+#define KIND_FRACTAL5 7
+#define KIND_FRACTAL_MIX_1_AND_4 8
+#define KIND_FRACTAL6 9
+#define KIND_FRACTAL7 10
+
 uniform int kind;
 
 // Time since the simulation started
@@ -35,8 +41,11 @@ vec3 palette (float t)
     vec3 c = vec3(1.0, 1.0, 1.0);
     vec3 d = vec3(0.263, 0.416, 0.557);
 
+     //vec3 d = vec3(0.263, 0.416, 0.1);
+
     return a + b * cos(6.28318 * (c * t + d));
 }
+
 
 // Standard 2D rotation using matrices
 mat2 rotate_2d(float angle)
@@ -59,8 +68,8 @@ float fire_spiral(vec3 p)
     return (length(p.xz) * 0.25);
 }
 
-// All fracal and SDF functions are from/adapted from https://jbaker.graphics/writings/DEC.html
-float fracal(vec3 p0) 
+// All fractal and SDF functions are from/adapted from https://jbaker.graphics/writings/DEC.html
+float fractal1(vec3 p0) 
 {   
     vec4 p = vec4(p0, 1.0);
     for(int i = 0; i < 8; i++)
@@ -71,7 +80,7 @@ float fracal(vec3 p0)
     return (length(p.xz / p.w ) * 0.25);
 }
 
-float fracal2(vec3 p) 
+float fractal2(vec3 p) 
 {
     p.xz = fract(p.xz) - 0.5;
     float k = 1.0;
@@ -100,6 +109,68 @@ float fracal3(vec3 p)
     return d;
 }
 
+// By gaziya5 aka gaz
+ float fractal4( vec3 p)
+ {
+   float s=3.;
+    for(int i = 0; i < 4; i++) {
+      p=mod(p-1.,2.)-1.;
+      float r=1.2/dot(p,p);
+      p*=r; s*=r;
+    }
+    p = abs(p)-0.8;
+    if (p.x < p.z) p.xz = p.zx;
+    if (p.y < p.z) p.yz = p.zy;
+    if (p.x < p.y) p.xy = p.yx;
+    return length(cross(p,normalize(vec3(0,1,1))))/s-.001;
+  }
+
+// By gaziya5 aka gaz
+ float fractal5( vec3 p)
+ {
+    float itr=10.,r=0.1;
+    p=mod(p-1.5,3.)-1.5;
+    p=abs(p)-1.3;
+    if(p.x < p.z)p.xz=p.zx;
+    if(p.y < p.z)p.yz=p.zy;
+    if(p.x < p.y)p.xy=p.yx;
+    float s=1.;
+    p-=vec3(.5,-.3,1.5);
+  	for(float i=0.;i++ < itr;) {
+  		float r2=2./clamp(dot(p,p),.1,1.);
+  		p=abs(p)*r2;
+  		p-=vec3(.7,.3,5.5);
+  		s*=r2;
+  	}
+    return length(p.xy)/(s-r);
+  }
+
+// By gaziya5 aka gaz
+  float fractal6(vec3 p){
+    float s=2., l=0.;
+    p=abs(p);
+    for(int j=0;j++<8;)
+      p=-sign(p)*(abs(abs(abs(p)-2.)-1.)-1.),
+      p*=l=-1.3/dot(p,p),
+      p-=.15, s*=l;
+    return length(p)/s;
+  }
+
+  // By Kali
+  float fractal7(vec3 p){
+   p.xz=abs(.5-mod(p.xz,1.))+.01;
+    float DEfactor=1.;
+    for (int i=0; i<14; i++) {
+      p = abs(p)-vec3(0.,2.,0.);
+      float r2 = dot(p, p);
+      float sc=2./clamp(r2,0.4,1.);
+      p*=sc;
+      DEfactor*=sc;
+      p = p - vec3(0.5,1.,0.5);
+    }
+    return length(p)/DEfactor-.0005;
+  }
+
 float sd_torus(vec3 p, float r)
 {
     return length(vec2(p.y, length(p.xz) - r));
@@ -118,10 +189,10 @@ float sd_box(vec3 p, vec3 size)
 }
 
 // Rotate the vector around a circle based on time
-vec3 circle_vec3(vec3 p)
+vec3 circle_vec3(vec3 p, float divisor)
 {
-    p.y += sin(time);
-    p.x += cos(time);
+    p.y += sin(time) / divisor;
+    p.x += cos(time) / divisor;
     return p;
 }
 
@@ -129,34 +200,69 @@ float map_fracatals(in vec3 p)
 {
     if (kind == KIND_FRACTAL1) 
     {
-        p = circle_vec3(p);
+        p = circle_vec3(p, 2);
         p.y -= 1;
-        return fracal(p);
+        return fractal1(p);
     }
     else if (kind == KIND_FRACTAL2) 
     {
         p.y  -= 1;
         p.xy *= rotate_2d((time) / 8);
-        return fracal2(p);
-    }
-    else if (kind == KIND_FRACTAL_MIX) 
-    {
-        // Move the camera in a circle
-        p = circle_vec3(p) / 4.0;
-        return mix(fracal(p), fracal2(p), (sin(time / 8) + 1) / 2);
+        return fractal2(p);
     }
     else if (kind == KIND_FRACTAL3) 
     {
-        p.xz *= rotate_2d(time / 2);
-        p.xy *= rotate_2d(time / 2);
+        p.xy *= -rotate_2d((time) / 8);
         return fracal3(p);
+    }
+    else if (kind == KIND_FRACTAL4) 
+    {
+        p = circle_vec3(p, 8);     
+        p.xy *= -rotate_2d((time) / 8);
+
+        return fractal4(p);
+    }
+    else if (kind == KIND_FRACTAL5) 
+    {
+        p.yz *= -rotate_2d((time) / 4);
+        p = circle_vec3(p, 16);     
+        return fractal5(p);
+    }
+    else if (kind == KIND_FRACTAL6) 
+    {
+        p.z += movement_speed * time;
+        p.xz *= -rotate_2d((time) / 16);
+        p = circle_vec3(p, 4);     
+        return fractal6(p);
+    }
+    else if (kind == KIND_FRACTAL7) 
+    {
+        p.y += 1;   
+        p.x += 1;   
+        // p.xy *= rotate_2d((time) / 32);
+        return fractal7(p);
+    }
+
+
+    else if (kind == KIND_FRACTAL_MIX) 
+    {
+        // Move the camera in a circle
+        p = circle_vec3(p, 16);
+        p.zx *= rotate_2d((time) / 32);
+        p.y -= 0.5;
+        return mix(fractal1(p), fractal2(p), (sin(time / 8) + 1) / 2);
+    }
+    else if (kind == KIND_FRACTAL_MIX_1_AND_4) 
+    {
+        // Move the camera in a circle
+        p.xy *= rotate_2d((time) / 8);
+        return mix(fractal1(p), fractal4(p), cos(time / 8));
     }
 }
 
 float map_primatives(in vec3 p) 
 {
     // Rotate the shapes
-    //p.xy *= rotate_2d((time) / 64 );
 
     // Create an infinite field
     p.xy = fract(p.xy) - 0.5;
@@ -164,6 +270,8 @@ float map_primatives(in vec3 p)
 
     if (kind == KIND_CUBES) 
     {
+        p.xz *= rotate_2d(time/4);
+        p.xy *= rotate_2d(time/4);
         return sd_box(p, vec3(0.1));
     }
     else if (kind == KIND_TORUS) 
@@ -186,11 +294,11 @@ void main()
     vec3 ro = vec3(0, 1, -3);
     
     // Ray direction
-    float fov = 1.0;;
+    float fov = 1.5;
     vec3 rd = normalize(vec3(uv * fov, 1));
     
     // Begin the march
-    float t = 0;
+    float t = 0.1;
     int i = 0;
     for (i = 0; i < 80; i++) 
     {
@@ -215,6 +323,11 @@ void main()
             case KIND_FRACTAL2:
             case KIND_FRACTAL_MIX:
             case KIND_FRACTAL3:
+            case KIND_FRACTAL4:
+            case KIND_FRACTAL5:
+            case KIND_FRACTAL6:
+            case KIND_FRACTAL7:
+            case KIND_FRACTAL_MIX_1_AND_4:
                 dist = map_fracatals(ray_position);
                 break;
 
@@ -224,7 +337,7 @@ void main()
         t += dist;
 
         // Exit early if the ray gets too close to the object, or if the travel distance is over 100
-        if (dist < 0.001 || t > 100.0) 
+        if (dist < 0.001 || t > 150.0) 
         {
             break;
         }

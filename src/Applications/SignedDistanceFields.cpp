@@ -52,8 +52,15 @@ void SignedDistanceFields::on_render(sf::Window& window)
         ImGui::RadioButton("Cube", &sdf_kind_, 1);
         ImGui::RadioButton("Fractal 1", &sdf_kind_, 2);
         ImGui::RadioButton("Fractal 2", &sdf_kind_, 3);
-        ImGui::RadioButton("Fractal Mix 1 + 2", &sdf_kind_, 4);
         ImGui::RadioButton("Fractal 3", &sdf_kind_, 5);
+        ImGui::RadioButton("Fractal 4", &sdf_kind_, 6);
+        ImGui::RadioButton("Fractal 5", &sdf_kind_, 7);
+        ImGui::RadioButton("Fractal 6", &sdf_kind_, 9);
+        ImGui::RadioButton("Fractal 7", &sdf_kind_, 10);
+
+        ImGui::RadioButton("Fractal Mix 1 + 2", &sdf_kind_, 4);
+        ImGui::RadioButton("Fractal Mix 1 + 4", &sdf_kind_, 8);
+
 
         ImGui::Text("Parameters");
         ImGui::SliderFloat("Distortion", &sdf_distortion_, 0.1f, 1.0f);

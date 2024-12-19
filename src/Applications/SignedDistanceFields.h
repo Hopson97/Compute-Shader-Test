@@ -19,6 +19,6 @@ class SignedDistanceFields : public Application
 
     // Config
     int sdf_kind_ = 0;
-    float sdf_distortion_ = 0.45f;
-    float sdf_camera_speed_ = 0.2f;
+    float sdf_distortion_ = 0.25f;
+    float sdf_camera_speed_ = 0.1f;
 };
