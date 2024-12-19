@@ -104,6 +104,8 @@ void SignedDistanceFields::on_render(sf::Window& window)
     //  cube_compute.set_uniform("position", camera_.transform.position);
     cube_compute.set_uniform("time", clock_.getElapsedTime().asSeconds());
     cube_compute.set_uniform("kind", sdf_kind_);
+    cube_compute.set_uniform("distortion", sdf_distortion_);
+    cube_compute.set_uniform("movement_speed", sdf_camera_speed_);
     glBindImageTexture(0, screen_texture_.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     glDispatchCompute(ceil(window.getSize().x / 8), ceil(window.getSize().y / 4), 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -131,12 +133,17 @@ void SignedDistanceFields::on_render(sf::Window& window)
     grid_mesh_.draw(GL_LINES);
 
     // IMGUI
-    if (ImGui::Begin("Select Kind"))
+    if (ImGui::Begin("SDF Config"))
     {
+        ImGui::Text("Select Kind");
         ImGui::RadioButton("Torus", &sdf_kind_, 0);
         ImGui::RadioButton("Cube", &sdf_kind_, 1);
         ImGui::RadioButton("Fractal 1", &sdf_kind_, 2);
         ImGui::RadioButton("Fractal 2", &sdf_kind_, 3);
+
+        ImGui::Text("Parameters");
+        ImGui::SliderFloat("Distortion", &sdf_distortion_, 0.1f, 1.0f);
+        ImGui::SliderFloat("Speed", &sdf_camera_speed_, 0.1f, 1.0f);
     }
     ImGui::End();
 }
