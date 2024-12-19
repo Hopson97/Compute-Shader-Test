@@ -9,6 +9,8 @@ layout(rgba32f, binding = 0) uniform writeonly image2D out_image;
 #define KIND_CUBES 1
 #define KIND_FRACTAL1 2
 #define KIND_FRACTAL2 3
+#define KIND_FRACTAL_MIX 4
+#define KIND_FRACTAL3 5
 uniform int kind;
 
 // Time since the simulation started
@@ -19,6 +21,11 @@ uniform float distortion;
 
 // How fast to move the camera forwards
 uniform float movement_speed;
+
+float p_sin()
+{
+    return (sin(time) + 1.0) / 2.0;
+}
 
 // Colour pallete from https://www.shadertoy.com/view/ll2GD3
 vec3 palette (float t) 
@@ -80,18 +87,18 @@ float fracal2(vec3 p)
 }
 
 // By kamoshika
-#define X(V) d = min(d, length(V) - 0.13)
 float fracal3(vec3 p)
 {
-    vec3 R = p, Q;
-    float d = 1.;
-    Q=fract(R)-.5;
-    X(Q.xy);
-    X(Q.yz);
-    X(Q.zx);
-    d=max(d,.68-length(fract(R-.5)-.5));
+    float d = 1.0;
+    vec3 q = fract(p) - 0.5;
+
+    d = min(d, length(q.xy) - 0.13);
+    d = min(d, length(q.yz) - 0.13);
+    d = min(d, length(q.zx) - 0.13);
+
+    d = max(d, 0.68 - length(fract(p - 0.5) - 0.5));
     return d;
-  }
+}
 
 float sd_torus(vec3 p, float r)
 {
@@ -110,24 +117,39 @@ float sd_box(vec3 p, vec3 size)
     return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
 }
 
+// Rotate the vector around a circle based on time
+vec3 circle_vec3(vec3 p)
+{
+    p.y += sin(time);
+    p.x += cos(time);
+    return p;
+}
+
 float map_fracatals(in vec3 p) 
 {
-    // Move the camera in a circle
-    p.y += sin(time) - 1;
-    p.x += cos(time);
-
-    // Rotate  the fracal
-    p.xy *= rotate_2d(sin(time) / 2);
-    p.xy *= rotate_2d(cos(time) / 2);
-    
-    // return mix(fracal(p), fracal2(p), (sin(time / 10) + 1) / 2);
     if (kind == KIND_FRACTAL1) 
     {
+        p = circle_vec3(p);
+        p.y -= 1;
         return fracal(p);
     }
     else if (kind == KIND_FRACTAL2) 
     {
+        p.y  -= 1;
+        p.xy *= rotate_2d((time) / 8);
         return fracal2(p);
+    }
+    else if (kind == KIND_FRACTAL_MIX) 
+    {
+        // Move the camera in a circle
+        p = circle_vec3(p) / 4.0;
+        return mix(fracal(p), fracal2(p), (sin(time / 8) + 1) / 2);
+    }
+    else if (kind == KIND_FRACTAL3) 
+    {
+        p.xz *= rotate_2d(time / 2);
+        p.xy *= rotate_2d(time / 2);
+        return fracal3(p);
     }
 }
 
@@ -191,6 +213,8 @@ void main()
 
             case KIND_FRACTAL1:
             case KIND_FRACTAL2:
+            case KIND_FRACTAL_MIX:
+            case KIND_FRACTAL3:
                 dist = map_fracatals(ray_position);
                 break;
 
