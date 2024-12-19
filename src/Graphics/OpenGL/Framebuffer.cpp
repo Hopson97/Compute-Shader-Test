@@ -21,6 +21,7 @@ void Framebuffer::bind() const
     assert(id);
     glViewport(0, 0, width, height);
     glBindFramebuffer(GL_FRAMEBUFFER, id);
+    // glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -36,13 +37,19 @@ GLuint Framebuffer::get_texture_id(GLuint index) const
     return textures_[index].id;
 }
 
-Framebuffer& Framebuffer::attach_colour(TextureFormat format)
+Texture2D& Framebuffer::get_texture(GLuint index)
 {
-    //assert(textures_.size() < GL_MAX_COLOR_ATTACHMENTS - 1);
+    assert(index < textures_.size());
+    return textures_[index];
+}
+
+Framebuffer& Framebuffer::attach_colour(TextureFormat format, const TextureParameters& filters)
+{
+    // assert(textures_.size() < GL_MAX_COLOR_ATTACHMENTS - 1);
     GLenum attachment = GL_COLOR_ATTACHMENT0 + static_cast<int>(textures_.size());
 
     Texture2D& texture = textures_.emplace_back();
-    texture.create(width, height, 1, format);
+    texture.create(width, height, 1, filters, format);
     glNamedFramebufferTexture(id, attachment, texture.id, 0);
     return *this;
 }
@@ -70,7 +77,7 @@ bool Framebuffer::is_complete() const
 {
     if (auto status = glCheckNamedFramebufferStatus(id, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
-        std::cerr << "Framebuffer incomplete. Status: " << status << '\n';
+        std::println(std::cerr, "Framebuffer incomplete with status: {}.", status);
         return false;
     }
     return true;

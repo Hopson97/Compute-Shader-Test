@@ -9,10 +9,8 @@ class CubeCompute : public Application
 {
   public:
     bool on_init(sf::Window& window) override;
-
-    void frame(sf::Window& window) override;
-
-    void handle_event(sf::Event event) override;
+    void on_event(sf::Event event) override;
+    void on_render(sf::Window& window) override;
 
   private:
     void update_camera(sf::Time dt);

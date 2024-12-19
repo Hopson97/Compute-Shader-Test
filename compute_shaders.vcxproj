@@ -21,9 +21,10 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{529de7b7-513f-428e-976d-97f3fdb44e1e}</ProjectGuid>
-    <RootNamespace>Compute_Shader_Test</RootNamespace>
+    <ProjectGuid>{a8f1dcc1-7e1a-43fd-96c4-e6bd9c626405}</ProjectGuid>
+    <RootNamespace>compute_shaders</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>compute_shaders</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -70,6 +71,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+  </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <VcpkgUseStatic>false</VcpkgUseStatic>
   </PropertyGroup>
@@ -117,7 +124,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)deps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -134,7 +141,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)deps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,47 +156,33 @@
     <ClCompile Include="deps\imgui_sfml\imgui-SFML.cpp" />
     <ClCompile Include="deps\imgui_sfml\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\Applications\Application.cpp" />
-    <ClCompile Include="src\Applications\GameOfLife.cpp" />
     <ClCompile Include="src\Applications\CubeCompute.cpp" />
+    <ClCompile Include="src\Applications\GameOfLife.cpp" />
     <ClCompile Include="src\Applications\SignedDistanceFields.cpp" />
+    <ClCompile Include="src\CameraController.cpp" />
     <ClCompile Include="src\Graphics\Camera.cpp" />
-    <ClCompile Include="src\Graphics\Maths.cpp" />
-    <ClCompile Include="src\Graphics\Mesh.cpp" />
     <ClCompile Include="src\Graphics\OpenGL\Framebuffer.cpp" />
     <ClCompile Include="src\Graphics\OpenGL\GLDebugEnable.cpp" />
+    <ClCompile Include="src\Util\Keyboard.cpp" />
+    <ClCompile Include="src\Util\Maths.cpp" />
     <ClCompile Include="src\Graphics\OpenGL\Shader.cpp" />
     <ClCompile Include="src\Graphics\OpenGL\Texture.cpp" />
     <ClCompile Include="src\Graphics\OpenGL\VertexArray.cpp" />
     <ClCompile Include="src\GUI.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Util.cpp" />
+    <ClCompile Include="src\Graphics\Mesh.cpp" />
+    <ClCompile Include="src\Util\Util.cpp" />
+    <ClCompile Include="src\Util\Profiler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
     <None Include=".gitignore" />
-    <None Include="assets\shaders\Compute.glsl" />
-    <None Include="assets\shaders\Conway.compute.glsl" />
-    <None Include="assets\shaders\ConwayCompute.glsl" />
-    <None Include="assets\shaders\CubeCompute.glsl" />
-    <None Include="assets\shaders\SceneFragment.glsl" />
-    <None Include="assets\shaders\SceneVertex.glsl" />
-    <None Include="assets\shaders\ScreenFragment.glsl" />
-    <None Include="assets\shaders\ScreenVertex.glsl" />
-    <None Include="assets\shaders\SignedDistanceFields.glsl" />
     <None Include="deps\imgui_sfml\LICENSE" />
-    <None Include="openal32.dll" />
+    <None Include="imgui.ini" />
+    <None Include="README.md" />
     <None Include="scripts\build.sh" />
     <None Include="scripts\debug.sh" />
     <None Include="scripts\run.sh" />
-    <None Include="sfml-audio-d-2.dll" />
-    <None Include="sfml-graphics-2.dll" />
-    <None Include="sfml-graphics-d-2.dll" />
-    <None Include="sfml-network-2.dll" />
-    <None Include="sfml-network-d-2.dll" />
-    <None Include="sfml-system-2.dll" />
-    <None Include="sfml-system-d-2.dll" />
-    <None Include="sfml-window-2.dll" />
-    <None Include="sfml-window-d-2.dll" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="deps\glad\glad.h" />
@@ -199,24 +192,28 @@
     <ClInclude Include="deps\imgui_sfml\imgui_impl_opengl3.h" />
     <ClInclude Include="deps\imgui_sfml\imgui_inc.h" />
     <ClInclude Include="src\Applications\Application.h" />
-    <ClInclude Include="src\Applications\GameOfLife.h" />
     <ClInclude Include="src\Applications\CubeCompute.h" />
+    <ClInclude Include="src\Applications\GameOfLife.h" />
     <ClInclude Include="src\Applications\SignedDistanceFields.h" />
+    <ClInclude Include="src\CameraController.h" />
     <ClInclude Include="src\Graphics\Camera.h" />
-    <ClInclude Include="src\Graphics\Maths.h" />
-    <ClInclude Include="src\Graphics\Mesh.h" />
     <ClInclude Include="src\Graphics\OpenGL\Framebuffer.h" />
     <ClInclude Include="src\Graphics\OpenGL\GLDebugEnable.h" />
     <ClInclude Include="src\Graphics\OpenGL\GLResource.h" />
+    <ClInclude Include="src\Util\Keyboard.h" />
+    <ClInclude Include="src\Util\Maths.h" />
     <ClInclude Include="src\Graphics\OpenGL\Shader.h" />
     <ClInclude Include="src\Graphics\OpenGL\Texture.h" />
     <ClInclude Include="src\Graphics\OpenGL\VertexArray.h" />
     <ClInclude Include="src\GUI.h" />
-    <ClInclude Include="src\Util.h" />
+    <ClInclude Include="src\Graphics\Lights.h" />
+    <ClInclude Include="src\Graphics\Mesh.h" />
+    <ClInclude Include="src\Util\Util.h" />
+    <ClInclude Include="src\Util\Profiler.h" />
+    <ClInclude Include="src\Util\TimeStep.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
-    <Text Include="conanfile.txt" />
     <Text Include="deps\CMakeLists.txt" />
     <Text Include="deps\glad\CMakeLists.txt" />
     <Text Include="deps\imgui_sfml\CMakeLists.txt" />

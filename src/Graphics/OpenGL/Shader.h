@@ -24,7 +24,7 @@ enum class ShaderType
 class Shader
 {
   public:
-    Shader();
+    Shader() = default;
     Shader(Shader&& other) noexcept = delete;
     Shader(const Shader& other) = delete;
     Shader& operator=(Shader&& other) noexcept = delete;

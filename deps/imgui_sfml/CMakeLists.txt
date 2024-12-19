@@ -4,4 +4,7 @@ add_library(
     imgui-SFML.cpp
 )   
 
-target_compile_options(glad PRIVATE -fPIE)
+target_link_libraries(imgui_sfml PRIVATE
+    sfml-system sfml-graphics sfml-window
+    imgui::imgui
+)

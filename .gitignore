@@ -1,6 +1,4 @@
 # Linux
-/bin
-compute_tests
 build/
 
 # Windows
@@ -19,4 +17,8 @@ Release/
 *.srctrlprj
 *.srctrldb
 *.srctrlbm
-assets/models/
+
+# Vcpkg
+vcpkg_installed/
+
+compute_shaders/

@@ -1,6 +1,6 @@
 #include "SignedDistanceFields.h"
 
-#include "../Graphics/Maths.h"
+#include "../Util/Maths.h"
 
 #include <imgui.h>
 
@@ -10,7 +10,8 @@ bool SignedDistanceFields::on_init(sf::Window& window)
     window_ = &window;
     camera_.init(window.getSize().x, window.getSize().y, 90);
 
-    // if (!cube_compute.load_stage("assets/shaders/SignedDistanceFields.glsl", ShaderType::Compute) ||
+    // if (!cube_compute.load_stage("assets/shaders/SignedDistanceFields.glsl", ShaderType::Compute)
+    // ||
     if (!cube_compute.load_stage("assets/shaders/SignedDistanceFields.glsl", ShaderType::Compute) ||
         !cube_compute.link_shaders())
     {
@@ -25,7 +26,6 @@ bool SignedDistanceFields::on_init(sf::Window& window)
     }
 
     // Cube
-
     if (!cube_texture_.load_from_file("assets/textures/debug.png", 1, false, false))
     {
         return false;
@@ -34,11 +34,8 @@ bool SignedDistanceFields::on_init(sf::Window& window)
     cube_texture_.set_mag_filter(TextureMagFilter::Nearest);
 
     // Set up the compute shader output texture
-    screen_texture_.create(window.getSize().x, window.getSize().y, 1, TextureFormat::RGBA32F);
-    screen_texture_.set_wrap_s(TextureWrap::Repeat);
-    screen_texture_.set_wrap_t(TextureWrap::Repeat);
-    screen_texture_.set_min_filter(TextureMinFilter::Nearest);
-    screen_texture_.set_mag_filter(TextureMagFilter::Nearest);
+    screen_texture_.create(window.getSize().x, window.getSize().y, 1, TEXTURE_PARAMS_NEAREST,
+                           TextureFormat::RGBA32F);
 
     return true;
 }
@@ -80,7 +77,8 @@ void SignedDistanceFields::update_camera(sf::Time dt)
         r.x -= static_cast<float>(change.y * 0.35);
         r.y += static_cast<float>(change.x * 0.35);
 
-        sf::Mouse::setPosition({(int)window_->getSize().x / 2, (int)window_->getSize().y / 2}, *window_);
+        sf::Mouse::setPosition({(int)window_->getSize().x / 2, (int)window_->getSize().y / 2},
+                               *window_);
         last_mouse = sf::Mouse::getPosition(*window_);
 
         r.x = glm::clamp(r.x, -89.9f, 89.9f);
@@ -92,7 +90,7 @@ void SignedDistanceFields::update_camera(sf::Time dt)
     camera_.update();
 }
 
-void SignedDistanceFields::frame(sf::Window& window)
+void SignedDistanceFields::on_render(sf::Window& window)
 {
     // Update the camera from keyboard/ mouse
     static sf::Clock clock;
@@ -101,9 +99,9 @@ void SignedDistanceFields::frame(sf::Window& window)
     // Run the compute shader to create a texture
     glDisable(GL_DEPTH_TEST);
     cube_compute.bind();
-    //cube_compute.set_uniform("inv_projection", glm::inverse(camera_.get_projection()));
-    //cube_compute.set_uniform("inv_view", glm::inverse(camera_.get_view_matrix()));
-    // cube_compute.set_uniform("position", camera_.transform.position);
+    // cube_compute.set_uniform("inv_projection", glm::inverse(camera_.get_projection()));
+    // cube_compute.set_uniform("inv_view", glm::inverse(camera_.get_view_matrix()));
+    //  cube_compute.set_uniform("position", camera_.transform.position);
     cube_compute.set_uniform("time", clock_.getElapsedTime().asSeconds());
     cube_compute.set_uniform("kind", sdf_kind_);
     glBindImageTexture(0, screen_texture_.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
@@ -119,11 +117,10 @@ void SignedDistanceFields::frame(sf::Window& window)
     // Render a regular scene
     glEnable(GL_DEPTH_TEST);
     scene_shader_.bind();
-    scene_shader_.set_uniform("projection_matrix", camera_.get_projection());
+    scene_shader_.set_uniform("projection_matrix", camera_.get_projection_matrix());
     scene_shader_.set_uniform("view_matrix", camera_.get_view_matrix());
     scene_shader_.set_uniform("model_matrix", create_model_matrix({.position = {5, 0, 5}}));
 
-    
     // cube_texture_.bind(0);
     cube_mesh_.bind();
     cube_mesh_.draw();
@@ -142,10 +139,9 @@ void SignedDistanceFields::frame(sf::Window& window)
         ImGui::RadioButton("Fractal 2", &sdf_kind_, 3);
     }
     ImGui::End();
-    
 }
 
-void SignedDistanceFields::handle_event(sf::Event event)
+void SignedDistanceFields::on_event(sf::Event event)
 {
     if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::L)
     {

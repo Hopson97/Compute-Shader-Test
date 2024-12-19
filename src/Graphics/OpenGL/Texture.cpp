@@ -36,6 +36,15 @@ namespace
 //=======================================
 // == GLTextureResource Implementation ==
 //=======================================
+void GLTextureResource::set_filters(const TextureParameters& filters)
+{
+    assert(id != 0);
+    set_min_filter(filters.min_filter);
+    set_mag_filter(filters.mag_filter);
+    set_wrap_s(filters.wrap_s);
+    set_wrap_t(filters.wrap_t);
+}
+
 void GLTextureResource::set_min_filter(TextureMinFilter filter)
 {
     assert(id != 0);
@@ -80,12 +89,12 @@ Texture2D::Texture2D()
 {
 }
 
-GLuint Texture2D::create(GLsizei width, GLsizei height, GLsizei levels, TextureFormat format)
+GLuint Texture2D::create(GLsizei width, GLsizei height, GLsizei levels, TextureParameters filters,
+                         TextureFormat format)
 {
     glTextureStorage2D(id, levels, static_cast<GLenum>(format), width, height);
 
-    set_min_filter(TextureMinFilter::Linear);
-    set_mag_filter(TextureMagFilter::Linear);
+    set_filters(filters);
 
     return id;
 }
@@ -97,18 +106,15 @@ GLuint Texture2D::create_depth_texture(GLsizei width, GLsizei height)
     bind(0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT,
                  GL_FLOAT, nullptr);
-    set_min_filter(TextureMinFilter::Linear);
-    set_mag_filter(TextureMagFilter::Linear);
-    set_wrap_s(TextureWrap::ClampToEdge);
-    set_wrap_t(TextureWrap::ClampToEdge);
+    set_filters({});
     set_compare_function(TextureCompareFunction::LessThanOrEqual);
     set_compare_mode(TextureCompareMode::CompareReferenceToTexture);
 
     return id;
 }
 
-bool Texture2D::load_from_image(const sf::Image& image, GLsizei levels, TextureInternalFormat internal_format,
-                                TextureFormat format)
+bool Texture2D::load_from_image(const sf::Image& image, GLsizei levels, TextureParameters filters,
+                                TextureInternalFormat internal_format, TextureFormat format)
 {
     const auto w = image.getSize().x;
     const auto h = image.getSize().y;
@@ -118,26 +124,27 @@ bool Texture2D::load_from_image(const sf::Image& image, GLsizei levels, TextureI
     glTextureStorage2D(id, levels, static_cast<GLenum>(format), w, h);
 
     // Upload the pixels
-    glTextureSubImage2D(id, 0, 0, 0, w, h, static_cast<GLenum>(internal_format), GL_UNSIGNED_BYTE, data);
+    glTextureSubImage2D(id, 0, 0, 0, w, h, static_cast<GLenum>(internal_format), GL_UNSIGNED_BYTE,
+                        data);
     glGenerateTextureMipmap(id);
 
     // Set some default wrapping
-    set_min_filter(TextureMinFilter::LinearMipmapLinear);
-    set_mag_filter(TextureMagFilter::Linear);
-    set_wrap_s(TextureWrap::Repeat);
-    set_wrap_t(TextureWrap::Repeat);
+    set_filters(filters);
     is_loaded_ = true;
     return true;
 }
 
-bool Texture2D::load_from_file(const std::filesystem::path& path, GLsizei levels, bool flip_vertically,
-                               bool flip_horizontally, TextureInternalFormat internal_format, TextureFormat format)
+bool Texture2D::load_from_file(const std::filesystem::path& path, GLsizei levels,
+                               bool flip_vertically, bool flip_horizontally, TextureParameters filters,
+                               TextureInternalFormat internal_format, TextureFormat format)
 {
     sf::Image image;
     if (!load_image_from_file(path, flip_vertically, flip_horizontally, image))
+    {
         return false;
+    }
 
-    return load_from_image(image, levels, internal_format, format);
+    return load_from_image(image, levels, filters, internal_format, format);
 }
 
 bool Texture2D::is_loaded() const
@@ -153,7 +160,7 @@ CubeMapTexture::CubeMapTexture()
 {
 }
 
-bool CubeMapTexture::load_from_file(const std::filesystem::path& folder)
+bool CubeMapTexture::load_from_folder(const std::filesystem::path& folder)
 {
     // Assumes textures are called the following in the given folder:
     // 1 RIGHT
@@ -169,7 +176,9 @@ bool CubeMapTexture::load_from_file(const std::filesystem::path& folder)
     {
         sf::Image image;
         if (!load_image_from_file(folder / CUBE_TEXTURE_NAMES[i], false, false, image))
+        {
             return false;
+        }
 
         const auto w = image.getSize().x;
         const auto h = image.getSize().y;
@@ -184,10 +193,8 @@ bool CubeMapTexture::load_from_file(const std::filesystem::path& folder)
         glTextureSubImage3D(id, 0, 0, 0, i, w, h, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
     }
 
-    set_min_filter(TextureMinFilter::Linear);
-    set_mag_filter(TextureMagFilter::Linear);
-    set_wrap_s(TextureWrap::ClampToEdge);
-    set_wrap_t(TextureWrap::ClampToEdge);
+    set_filters({});
+    return created;
 }
 
 bool CubeMapTexture::is_loaded() const

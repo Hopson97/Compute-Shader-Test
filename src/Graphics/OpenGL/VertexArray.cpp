@@ -11,8 +11,8 @@ void VertexArray::bind() const
     glBindVertexArray(id);
 }
 
-void VertexArray::add_attribute(const BufferObject& vbo, GLsizei stride, GLint size,
-                                GLenum type, GLuint offset)
+void VertexArray::add_attribute(const BufferObject& vbo, GLsizei stride, GLint size, GLenum type,
+                                GLuint offset)
 {
     glEnableVertexArrayAttrib(id, attribs_);
     glVertexArrayVertexBuffer(id, attribs_, vbo.id, 0, stride);

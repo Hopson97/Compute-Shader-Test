@@ -6,8 +6,7 @@ class GameOfLife : public Application
 {
   public:
     bool on_init(sf::Window& window) override;
-
-    void frame(sf::Window& window) override;
+    void on_render(sf::Window& window) override;
 
   private:
     Shader game_of_life_compute_;

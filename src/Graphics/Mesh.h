@@ -32,6 +32,7 @@ class Mesh
 };
 
 [[nodiscard]] Mesh generate_quad_mesh(float w, float h);
-[[nodiscard]] Mesh generate_cube_mesh(const glm::vec3& size);
+[[nodiscard]] Mesh generate_cube_mesh(const glm::vec3& size, bool repeat_texture = false);
+[[nodiscard]] Mesh generate_centered_cube_mesh(const glm::vec3& size);
 [[nodiscard]] Mesh generate_terrain_mesh(int size, int edgeVertices);
 [[nodiscard]] Mesh generate_grid_mesh(int size);

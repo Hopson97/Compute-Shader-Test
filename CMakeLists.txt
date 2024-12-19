@@ -1,29 +1,32 @@
 cmake_minimum_required(VERSION 3.10)
 
-#Set up project
 project(
-    compute_tests 
+    compute_shaders 
     VERSION 1.0
 )
 
 include("$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 
-#Set executable
-add_executable(${PROJECT_NAME}     
-
+add_executable(${PROJECT_NAME}
     src/main.cpp
+    src/Application.cpp
+    src/ApplicationMinimal.cpp
+    src/CameraController.cpp
     src/GUI.cpp
-    src/Util.cpp
 
-    src/Graphics/GLDebugEnable.cpp
-    src/Graphics/Shader.cpp
-    src/Graphics/Texture.cpp
-    src/Graphics/VertexArray.cpp
+    src/Util/Keyboard.cpp
+    src/Util/Maths.cpp
+    src/Util/Profiler.cpp
+    src/Util/Util.cpp
 
-    src/Applications/Application.cpp
-    src/Applications/GameOfLife.cpp
-    src/Applications/CubeCompute.cpp
+    src/Graphics/Camera.cpp
+    src/Graphics/Mesh.cpp
 
+    src/Graphics/OpenGL/Framebuffer.cpp
+    src/Graphics/OpenGL/GLDebugEnable.cpp
+    src/Graphics/OpenGL/Shader.cpp
+    src/Graphics/OpenGL/Texture.cpp
+    src/Graphics/OpenGL/VertexArray.cpp
 )
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)

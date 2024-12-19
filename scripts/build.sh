@@ -19,17 +19,17 @@ target_debug() {
 # Create folder for distribution
 if [ "$1" = "release" ]
 then
-    if [ -d "$PROJECT_NAME_PLACEHOLDER" ]
+    if [ -d "$compute_shaders" ]
     then
-        rm -rf -d PROJECT_NAME_PLACEHOLDER
+        rm -rf -d compute_shaders
     fi
 
-    mkdir -p PROJECT_NAME_PLACEHOLDER
+    mkdir -p compute_shaders
 fi
 
 # Creates the folder for the buildaries
-mkdir -p PROJECT_NAME_PLACEHOLDER 
-mkdir -p PROJECT_NAME_PLACEHOLDER/assets
+mkdir -p compute_shaders 
+mkdir -p compute_shaders/assets
 mkdir -p build
 mkdir -p build/release
 mkdir -p build/debug
@@ -39,9 +39,9 @@ cd build
 if [ "$1" = "release" ]
 then
     target_release
-    cp build/release/PROJECT_NAME_PLACEHOLDER PROJECT_NAME_PLACEHOLDER/PROJECT_NAME_PLACEHOLDER
+    cp build/release/compute_shaders compute_shaders/compute_shaders
 else
     target_debug
 fi
 
-cp -R assets PROJECT_NAME_PLACEHOLDER/
+cp -R assets compute_shaders/

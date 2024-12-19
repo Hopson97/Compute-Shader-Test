@@ -6,7 +6,8 @@ FixNamespaceComments: true
 IndentCaseLabels: true
 NamespaceIndentation: All
 BreakConstructorInitializersBeforeComma: true
-ColumnLimit: 120
+ColumnLimit: 100
 AlwaysBreakTemplateDeclarations: true
 PointerAlignment: Left
 AllowShortFunctionsOnASingleLine: None
+

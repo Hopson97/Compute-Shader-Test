@@ -1,6 +1,8 @@
 #include "CubeCompute.h"
 
-#include "../Graphics/Maths.h"
+#include "../Util/Maths.h"
+
+#include "../GUI.h"
 
 bool CubeCompute::on_init(sf::Window& window)
 {
@@ -31,11 +33,9 @@ bool CubeCompute::on_init(sf::Window& window)
     cube_texture_.set_mag_filter(TextureMagFilter::Nearest);
 
     // Set up the compute shader output texture
-    screen_texture_.create(window.getSize().x, window.getSize().y, 1, TextureFormat::RGBA32F);
-    screen_texture_.set_wrap_s(TextureWrap::Repeat);
-    screen_texture_.set_wrap_t(TextureWrap::Repeat);
-    screen_texture_.set_min_filter(TextureMinFilter::Nearest);
-    screen_texture_.set_mag_filter(TextureMagFilter::Nearest);
+    screen_texture_.create(window.getSize().x, window.getSize().y, 1,
+                           TEXTURE_PARAMS_NEAREST,
+                           TextureFormat::RGBA32F);
 
     return true;
 }
@@ -77,7 +77,8 @@ void CubeCompute::update_camera(sf::Time dt)
         r.x -= static_cast<float>(change.y * 0.35);
         r.y += static_cast<float>(change.x * 0.35);
 
-        sf::Mouse::setPosition({(int)window_->getSize().x / 2, (int)window_->getSize().y / 2}, *window_);
+        sf::Mouse::setPosition({(int)window_->getSize().x / 2, (int)window_->getSize().y / 2},
+                               *window_);
         last_mouse = sf::Mouse::getPosition(*window_);
 
         r.x = glm::clamp(r.x, -89.9f, 89.9f);
@@ -89,7 +90,7 @@ void CubeCompute::update_camera(sf::Time dt)
     camera_.update();
 }
 
-void CubeCompute::frame(sf::Window& window)
+void CubeCompute::on_render(sf::Window& window)
 {
     // Update the camera from keyboard/ mouse
     static sf::Clock clock;
@@ -98,7 +99,7 @@ void CubeCompute::frame(sf::Window& window)
     // Run the compute shader to create a texture
     glDisable(GL_DEPTH_TEST);
     cube_compute.bind();
-    cube_compute.set_uniform("inv_projection", glm::inverse(camera_.get_projection()));
+    cube_compute.set_uniform("inv_projection", glm::inverse(camera_.get_projection_matrix()));
     cube_compute.set_uniform("inv_view", glm::inverse(camera_.get_view_matrix()));
     cube_compute.set_uniform("position", camera_.transform.position);
     glBindImageTexture(0, screen_texture_.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
@@ -114,7 +115,7 @@ void CubeCompute::frame(sf::Window& window)
     // Render a regular scene
     glEnable(GL_DEPTH_TEST);
     scene_shader_.bind();
-    scene_shader_.set_uniform("projection_matrix", camera_.get_projection());
+    scene_shader_.set_uniform("projection_matrix", camera_.get_projection_matrix());
     scene_shader_.set_uniform("view_matrix", camera_.get_view_matrix());
     scene_shader_.set_uniform("model_matrix", create_model_matrix({.position = {5, 0, 5}}));
 
@@ -126,9 +127,11 @@ void CubeCompute::frame(sf::Window& window)
     scene_shader_.set_uniform("model_matrix", create_model_matrix({.position = {0, -1, 0}}));
     grid_mesh_.bind();
     grid_mesh_.draw(GL_LINES);
+
+    GUI::debug_window(camera_.transform.position, camera_.transform.rotation);
 }
 
-void CubeCompute::handle_event(sf::Event event)
+void CubeCompute::on_event(sf::Event event)
 {
     if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::L)
     {

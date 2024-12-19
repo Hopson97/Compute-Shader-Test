@@ -4,7 +4,8 @@
 
 bool GameOfLife::on_init(sf::Window& window)
 {
-    if (!game_of_life_compute_.load_stage("assets/shaders/ConwayCompute.glsl", ShaderType::Compute) ||
+    if (!game_of_life_compute_.load_stage("assets/shaders/ConwayCompute.glsl",
+                                          ShaderType::Compute) ||
         !game_of_life_compute_.link_shaders())
     {
         return false;
@@ -21,27 +22,22 @@ bool GameOfLife::on_init(sf::Window& window)
     }
 
     // Set up the double buffer
-    if (!screen_texture_.load_from_image(image, 1, TextureInternalFormat::RGBA, TextureFormat::RGBA32F))
+    if (!screen_texture_.load_from_image(image, 1, TEXTURE_PARAMS_NEAREST,
+                                         TextureInternalFormat::RGBA, TextureFormat::RGBA32F))
     {
         return false;
     }
-    screen_texture_.set_wrap_s(TextureWrap::Repeat);
-    screen_texture_.set_wrap_t(TextureWrap::Repeat);
-    screen_texture_.set_min_filter(TextureMinFilter::Nearest);
-    screen_texture_.set_mag_filter(TextureMagFilter::Nearest);
 
-    screen_texture2_.create(window.getSize().x, window.getSize().y, 1, TextureFormat::RGBA32F);
-    screen_texture2_.set_wrap_s(TextureWrap::Repeat);
-    screen_texture2_.set_wrap_t(TextureWrap::Repeat);
-    screen_texture2_.set_min_filter(TextureMinFilter::Nearest);
-    screen_texture2_.set_mag_filter(TextureMagFilter::Nearest);
+    screen_texture2_.create(window.getSize().x, window.getSize().y, 1, TEXTURE_PARAMS_NEAREST,
+                            TextureFormat::RGBA32F);
 
     return true;
 }
 
-void GameOfLife::frame(sf::Window& window)
+void GameOfLife::on_render(sf::Window& window)
 {
-    // The compute shader uses a double buffer to prevent read/write to same pixel by different work groups
+    // The compute shader uses a double buffer to prevent read/write to same pixel by different work
+    // groups
     game_of_life_compute_.bind();
     if (generation_ % 2 == 0)
     {

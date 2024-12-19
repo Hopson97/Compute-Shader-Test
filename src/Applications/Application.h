@@ -16,11 +16,11 @@ class Application
   public:
     [[nodiscard]] bool init(sf::Window& window);
 
-    virtual void handle_event([[maybe_unused]] sf::Event event)
+    virtual void on_event([[maybe_unused]] sf::Event event)
     {
     }
 
-    virtual void frame(sf::Window& window) = 0;
+    virtual void on_render(sf::Window& window) = 0;
 
   protected:
     virtual bool on_init(sf::Window& window) = 0;

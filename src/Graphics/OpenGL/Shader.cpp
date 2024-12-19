@@ -4,7 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-#include "../../Util.h"
+#include "../../Util/Util.h"
 
 namespace
 {
@@ -14,7 +14,7 @@ namespace
         LinkStatus = GL_LINK_STATUS
     };
 
-    constexpr const char* to_string(IVParameter param)
+    constexpr auto to_string(IVParameter param)
     {
         switch (param)
         {
@@ -27,21 +27,22 @@ namespace
         return "ShouldNeverGetHere";
     }
 
-    bool verify_shader(GLuint shader, IVParameter parameter)
+    template <IVParameter parameter>
+    auto verify_shader(GLuint shader)
     {
         // Verify
         GLint status = 0;
-        if (parameter == IVParameter::CompileStatus)
+        if constexpr (parameter == IVParameter::CompileStatus)
         {
             glGetShaderiv(shader, static_cast<GLenum>(parameter), &status);
         }
-        else if (parameter == IVParameter::LinkStatus)
+        else if constexpr (parameter == IVParameter::LinkStatus)
         {
             glGetProgramiv(shader, static_cast<GLenum>(parameter), &status);
         }
         else
         {
-            std::cerr << "Unkown verify type for action '" << to_string(parameter) << "'\n";
+            std::println(std::cerr, "Unkown verify type for action '{}'.", to_string(parameter));
         }
 
         if (status == GL_FALSE)
@@ -49,20 +50,18 @@ namespace
             GLsizei length;
             glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 
-            if (parameter == IVParameter::CompileStatus)
+            if constexpr (parameter == IVParameter::CompileStatus)
             {
                 glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
             }
-            else if (parameter == IVParameter::LinkStatus)
+            else if constexpr (parameter == IVParameter::LinkStatus)
             {
                 glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &length);
             }
-
-            std::cout << "LENGTH " << length << std::endl;
-            // std::string buffer(length + 1, ' ');
             std::string buffer(2500, ' ');
             glGetShaderInfoLog(shader, 1024, NULL, buffer.data());
-            std::cerr << "Failed to " << to_string(parameter) << " shader :\n" << buffer << std::endl;
+            std::println(std::cerr, "Failed to '{}' shader. Error: {}", to_string(parameter),
+                         buffer);
             return false;
         }
         return true;
@@ -74,7 +73,7 @@ namespace
         glShaderSource(shader, 1, (const GLchar* const*)&source, nullptr);
         glCompileShader(shader);
 
-        if (!verify_shader(shader, IVParameter::CompileStatus))
+        if (!verify_shader<IVParameter::CompileStatus>(shader))
         {
             return 0;
         }
@@ -82,9 +81,6 @@ namespace
     }
 } // namespace
 
-Shader::Shader()
-{
-}
 
 Shader::~Shader()
 {
@@ -100,11 +96,10 @@ bool Shader::load_stage(const std::filesystem::path& file_path, ShaderType shade
         return false;
     }
 
-    std::cout << "Compiling " << file_path << ".\n";
     GLuint shader = compile_shader(source.c_str(), static_cast<GLenum>(shader_type));
     if (!shader)
     {
-        std::cerr << "Failed to compile shader file " << file_path << ".\n";
+        std::println(std::cerr, "Failed to compile shader '{}'.", file_path.string());
         return false;
     }
     stages_.push_back(shader);
@@ -122,9 +117,10 @@ bool Shader::link_shaders()
     }
     glLinkProgram(program_);
 
-    if (!verify_shader(program_, IVParameter::LinkStatus))
+    if (!verify_shader<IVParameter::LinkStatus>(program_))
     {
-        std::cerr << "Failed to link shaders\n";
+        std::println(std::cerr, "Failed to link shader.");
+
         return false;
     }
     glValidateProgram(program_);
@@ -133,7 +129,7 @@ bool Shader::link_shaders()
     glGetProgramiv(program_, GL_VALIDATE_STATUS, &status);
     if (status == GL_FALSE)
     {
-        std::cerr << "Failed to validate shader program.\n";
+        std::println(std::cerr, "Failed to validate shader program.");
         return false;
     }
 
@@ -180,7 +176,8 @@ void Shader::set_uniform(const std::string& name, const glm::vec4& vector)
 
 void Shader::set_uniform(const std::string& name, const glm::mat4& matrix)
 {
-    glProgramUniformMatrix4fv(program_, get_uniform_location(name), 1, GL_FALSE, glm::value_ptr(matrix));
+    glProgramUniformMatrix4fv(program_, get_uniform_location(name), 1, GL_FALSE,
+                              glm::value_ptr(matrix));
 }
 
 void Shader::bind_uniform_block_index(const std::string& name, GLuint index)
@@ -196,7 +193,7 @@ GLint Shader::get_uniform_location(const std::string& name)
         auto location = glGetUniformLocation(program_, name.c_str());
         if (location == -1)
         {
-            std::cerr << "Cannot find uniform location '" << name << "'\n";
+            std::println(std::cerr, "Cannot find uniform location {}'", name);
             return 0;
         }
         uniform_locations_.insert({name, location});

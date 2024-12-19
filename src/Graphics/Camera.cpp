@@ -2,6 +2,13 @@
 
 #include <imgui.h>
 
+PerspectiveCamera::PerspectiveCamera(unsigned width, unsigned height, float fov)
+    : aspect_{static_cast<float>(width) / static_cast<float>(height)}
+    , fov_{fov}
+{
+    projection_matrix_ = glm::perspective(glm::radians(fov_), aspect_, near_, far_);
+}
+
 void PerspectiveCamera::init(unsigned width, unsigned height, float fov)
 {
     aspect_ = static_cast<float>(width) / static_cast<float>(height);
@@ -40,7 +47,7 @@ const glm::mat4& PerspectiveCamera::get_view_matrix() const
     return view_matrix_;
 }
 
-const glm::mat4& PerspectiveCamera::get_projection() const
+const glm::mat4& PerspectiveCamera::get_projection_matrix() const
 {
     return projection_matrix_;
 }

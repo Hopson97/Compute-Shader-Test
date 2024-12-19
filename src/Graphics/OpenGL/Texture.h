@@ -41,9 +41,9 @@ enum class TextureMagFilter
 enum class TextureCompareFunction
 {
     LessThanOrEqual = GL_LEQUAL,
-    GreaaterThanOrEqual = GL_GEQUAL,
+    GreaterThanOrEqual = GL_GEQUAL,
     LessThan = GL_LESS,
-    GreaaterThan = GL_GREATER,
+    GreaterThan = GL_GREATER,
     Equal = GL_EQUAL,
     NotEqual = GL_NOTEQUAL,
     Always = GL_ALWAYS,
@@ -65,7 +65,25 @@ enum class TextureWrap
     MirrorClampToEdge = GL_MIRROR_CLAMP_TO_EDGE,
 };
 
+struct TextureParameters
+{
+    TextureMinFilter min_filter = TextureMinFilter::Linear;
+    TextureMagFilter mag_filter = TextureMagFilter::Linear;
+    TextureWrap wrap_s = TextureWrap::ClampToEdge;
+    TextureWrap wrap_t = TextureWrap::ClampToEdge;
+};
+
 // clang-format off
+constexpr TextureParameters TEXTURE_PARAMS_MIPMAP = {.min_filter = TextureMinFilter::LinearMipmapLinear,
+                                                     .mag_filter = TextureMagFilter::Linear,
+                                                     .wrap_s = TextureWrap::Repeat,
+                                                     .wrap_t = TextureWrap::Repeat};
+
+constexpr TextureParameters TEXTURE_PARAMS_NEAREST = {.min_filter = TextureMinFilter::Nearest,
+                                                     .mag_filter = TextureMagFilter::Nearest,
+                                                     .wrap_s = TextureWrap::Repeat,
+                                                     .wrap_t = TextureWrap::Repeat};
+
 struct GLTextureResource
 {
     GLuint id = 0;
@@ -82,6 +100,7 @@ struct GLTextureResource
     void bind(GLuint unit) const { assert(id); glBindTextureUnit(unit, id); }
     // clang-format on
 
+    void set_filters(const TextureParameters& filters);
     void set_min_filter(TextureMinFilter filter);
     void set_mag_filter(TextureMagFilter filter);
     void set_wrap_s(TextureWrap wrap);
@@ -94,15 +113,18 @@ struct Texture2D : public GLTextureResource
 {
     Texture2D();
 
-    GLuint create(GLsizei width, GLsizei height, GLsizei levels = 1,
+    GLuint create(GLsizei width, GLsizei height, GLsizei levels = 1, TextureParameters filters = {},
                   TextureFormat format = TextureFormat::RGB8);
+
     GLuint create_depth_texture(GLsizei width, GLsizei height);
 
     bool load_from_image(const sf::Image& image, GLsizei levels,
+                         TextureParameters filters = TEXTURE_PARAMS_MIPMAP,
                          TextureInternalFormat internal_format = TextureInternalFormat::RGBA,
                          TextureFormat format = TextureFormat::RGBA8);
 
-    bool load_from_file(const std::filesystem::path& path, GLsizei levels, bool flip_vertically, bool flip_horizontally,
+    bool load_from_file(const std::filesystem::path& path, GLsizei levels, bool flip_vertically,
+                        bool flip_horizontally, TextureParameters filters = TEXTURE_PARAMS_MIPMAP,
                         TextureInternalFormat internal_format = TextureInternalFormat::RGBA,
                         TextureFormat format = TextureFormat::RGBA8);
 
@@ -116,7 +138,16 @@ struct CubeMapTexture : public GLTextureResource
 {
     CubeMapTexture();
 
-    bool load_from_file(const std::filesystem::path& folder);
+    /**
+        Assumes textures are called the following in the given folder:
+        1 RIGHT
+        2 LEFT
+        3 TOP
+        4 BOTTOM
+        5 FRONT
+        6 BACK
+    */
+    bool load_from_folder(const std::filesystem::path& folder);
 
     bool is_loaded() const;
 
