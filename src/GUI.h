@@ -1,12 +1,10 @@
 #pragma once
-/*
 
 #include <SFML/Window/Window.hpp>
 
 namespace GUI
 {
-
-    void init(sf::Window* window);
+    void init(sf::Window& window);
 
     void begin_frame();
 
@@ -16,4 +14,3 @@ namespace GUI
     void event(const sf::Window& window, sf::Event& e);
 
 } // namespace GUI
-*/

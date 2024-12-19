@@ -1,11 +1,15 @@
 #include <memory>
 
 #include <SFML/Window/Event.hpp>
+#include <imgui.h>
+#include <imgui_sfml/imgui-SFML.h>
+#include <imgui_sfml/imgui_impl_opengl3.h>
 
 #include "Applications/Application.h"
 #include "Applications/CubeCompute.h"
 #include "Applications/GameOfLife.h"
 #include "Applications/SignedDistanceFields.h"
+#include "GUI.h"
 #include "Graphics/OpenGL/GLDebugEnable.h"
 
 int main()
@@ -31,10 +35,10 @@ int main()
     }
     glViewport(0, 0, WIDTH, HEIGHT);
     init_opengl_debugging();
-    // GUI::init(&window);
+    GUI::init(window);
 
     // std::unique_ptr<Application> app = std::make_unique<GameOfLife>();
-    //std::unique_ptr<Application> app = std::make_unique<CubeCompute>();
+    // std::unique_ptr<Application> app = std::make_unique<CubeCompute>();
     std::unique_ptr<Application> app = std::make_unique<SignedDistanceFields>();
     if (!app->init(window))
     {
@@ -49,12 +53,12 @@ int main()
     while (window.isOpen())
     {
 
-        // GUI::begin_frame();
+        GUI::begin_frame();
         sf::Event e;
         while (window.pollEvent(e))
         {
             app->handle_event(e);
-            // GUI::event(window, e);
+            GUI::event(window, e);
 
             switch (e.type)
             {
@@ -92,12 +96,12 @@ int main()
 
         app->frame(window);
 
-        // GUI::render();
+        GUI::render();
         window.display();
     }
 
     // --------------------------
     // ==== Graceful Cleanup ====
     // --------------------------
-    // GUI::shutdown();
+    GUI::shutdown();
 }

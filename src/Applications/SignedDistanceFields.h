@@ -32,4 +32,6 @@ class SignedDistanceFields : public Application
     bool mouse_locked_;
 
     sf::Clock clock_;
+
+    int sdf_kind_ = 0;
 };

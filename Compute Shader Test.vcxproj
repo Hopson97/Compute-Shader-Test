@@ -175,7 +175,7 @@
     <None Include="assets\shaders\SceneVertex.glsl" />
     <None Include="assets\shaders\ScreenFragment.glsl" />
     <None Include="assets\shaders\ScreenVertex.glsl" />
-    <None Include="assets\shaders\SpiralCubesCompute.glsl" />
+    <None Include="assets\shaders\SignedDistanceFields.glsl" />
     <None Include="deps\imgui_sfml\LICENSE" />
     <None Include="openal32.dll" />
     <None Include="scripts\build.sh" />

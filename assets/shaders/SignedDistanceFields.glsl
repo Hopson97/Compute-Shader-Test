@@ -3,6 +3,15 @@
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform writeonly image2D out_image;
 
+
+// User can select the simulation kind
+#define KIND_TORUS 0
+#define KIND_CUBES 1
+#define KIND_FRACTAL1 2
+#define KIND_FRACTAL2 3
+uniform int kind;
+
+
 uniform float time;
 
 vec3 palette (float t) 
@@ -26,7 +35,7 @@ mat2 rotate_2d(float angle)
 
 
 // https://jbaker.graphics/writings/DEC.html
-float crazy_fracal2( vec3 p ) 
+float fracal2( vec3 p ) 
 {
     p.xz=fract(p.xz)-.5;
     float k=1.;
@@ -40,7 +49,7 @@ float crazy_fracal2( vec3 p )
 }
 
 // https://jbaker.graphics/writings/DEC.html
-float crazy_fracal( vec3 p0 ) 
+float fracal( vec3 p0 ) 
 {
     vec4 p = vec4(p0, 1.0);
     for(int i = 0; i < 8; i++)
@@ -68,32 +77,32 @@ float sd_box(vec3 p, vec3 size)
     return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
 }
 
-float map2(vec3 p) 
-{
-    // Continuously move the camera forwards
-    p.z += time;
+//float map2(vec3 p) 
+//{
+//    // Continuously move the camera forwards
+//    p.z += time;
+//
+//    p.x += 1.0;
+//    p.y -= 0.5;
+//
+//    // Move the camera in a circle
+//    p.y += sin(time) * 0.25;
+//    p.x += cos(time) * 0.25;
+//
+//    // Rotate the shape
+//    p.xy *= rotate_2d(sin(time) / 4 );
+//    p.xy *= rotate_2d(cos(time) / 4 );
+//    float fractal = crazy_fracal(p);// * (sin(time) + 2.0) / 2.0;
+//
+//    // Create an infinite field of torus
+//    //p.xy = fract(p.xy) - 0.5;
+//    //p.z = mod(p.z, 0.2) - 0.1;
+//    // float box =  sd_box(p, vec3(0.01));
+//
+//    return fractal;
+//}
 
-    p.x += 1.0;
-    p.y -= 0.5;
-
-    // Move the camera in a circle
-    p.y += sin(time) * 0.25;
-    p.x += cos(time) * 0.25;
-
-    // Rotate the shape
-    p.xy *= rotate_2d(sin(time) / 4 );
-    p.xy *= rotate_2d(cos(time) / 4 );
-    float fractal = crazy_fracal(p);// * (sin(time) + 2.0) / 2.0;
-
-    // Create an infinite field of torus
-    //p.xy = fract(p.xy) - 0.5;
-    //p.z = mod(p.z, 0.2) - 0.1;
-    // float box =  sd_box(p, vec3(0.01));
-
-    return fractal;
-}
-
-float map(vec3 p) 
+float map_fracatals(in vec3 p) 
 {
     // Continuously move the camera forwards
     p.z += time * 0.5;
@@ -106,19 +115,49 @@ float map(vec3 p)
     p.y += sin(time);
     p.x += cos(time);
 
-        // Rotate  he cubes
+    // Rotate  the fracal
     p.xy *= rotate_2d(sin(time) / 2 );
     p.xy *= rotate_2d(cos(time) / 2 );
 
+
+    return kind == KIND_FRACTAL1 ? fracal(p) : fracal2(p);
+
+    if (kind == KIND_FRACTAL1) 
+    {
+        return fracal(p);
+    }
+    else if (kind == KIND_FRACTAL2) 
+    {
+        return fracal2(p);
+    }
+}
+
+float map_primatives(in vec3 p) 
+{
+    // Continuously move the camera forwards
+    p.z += time * 0.5;
+
+
+    // Move the camera in a circle
+    // p.y += sin(time);
+    // p.x += cos(time);
+
+    // Rotate the cubes
+    p.xy *= rotate_2d((time) / 64 );
+    p.xy *= rotate_2d((time) / 64 );
+
     // Create an infinite field of cubes
-    //p.xy = fract(p.xy) - 0.5;
-    //p.z = mod(p.z, 0.5) - 0.25;
+    p.xy = fract(p.xy) - 0.5;
+    p.z = mod(p.z, 0.5) - 0.25;
 
-
-    return crazy_fracal(p);
-
-
-//    return sd_box(p, vec3(0.1));
+    if (kind == KIND_CUBES) 
+    {
+        return sd_box(p, vec3(0.1));
+    }
+    else if (kind == KIND_TORUS) 
+    {
+        return sd_torus(p, 0.25);
+    }
 }
 
 
@@ -130,7 +169,7 @@ void main()
 
 	// Start in ndc sapce
 	vec2 uv = (pixel_coords * 2.0 - image_size.xy) / image_size.y;
-
+     
     // Ray origin point 
     vec3 ro = vec3(0, 1, -3);
     
@@ -148,9 +187,25 @@ void main()
         vec3 ray_position = ro + rd * t;
 
         // Spiral the ray as it gets further from the camera
-        ray_position.xy *= rotate_2d(t * 0.6) * atan(time, cos(time) * sin(time));
+        ray_position.xy *= rotate_2d(t * 0.2) * atan(time, sin(time));
 
-        float dist = map(ray_position);
+        // Get the nearest signed-distance field distance
+        float dist = 0;
+        switch(kind)
+        {
+            case KIND_TORUS:
+            case KIND_CUBES:
+                dist = map_primatives(ray_position);
+                break;
+
+            case KIND_FRACTAL1:
+            case KIND_FRACTAL2:
+                dist = map_fracatals(ray_position);
+                break;
+
+        }
+
+        // Step the travel based on the last sdf
         t += dist;
 
         // Exit early if the ray gets too close to the object, or if the travel distance is over 100

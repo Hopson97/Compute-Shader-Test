@@ -2,6 +2,8 @@
 
 #include "../Graphics/Maths.h"
 
+#include <imgui.h>
+
 bool SignedDistanceFields::on_init(sf::Window& window)
 {
 
@@ -9,7 +11,7 @@ bool SignedDistanceFields::on_init(sf::Window& window)
     camera_.init(window.getSize().x, window.getSize().y, 90);
 
     // if (!cube_compute.load_stage("assets/shaders/SignedDistanceFields.glsl", ShaderType::Compute) ||
-    if (!cube_compute.load_stage("assets/shaders/SpiralCubesCompute.glsl", ShaderType::Compute) ||
+    if (!cube_compute.load_stage("assets/shaders/SignedDistanceFields.glsl", ShaderType::Compute) ||
         !cube_compute.link_shaders())
     {
         return false;
@@ -103,6 +105,7 @@ void SignedDistanceFields::frame(sf::Window& window)
     //cube_compute.set_uniform("inv_view", glm::inverse(camera_.get_view_matrix()));
     // cube_compute.set_uniform("position", camera_.transform.position);
     cube_compute.set_uniform("time", clock_.getElapsedTime().asSeconds());
+    cube_compute.set_uniform("kind", sdf_kind_);
     glBindImageTexture(0, screen_texture_.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     glDispatchCompute(ceil(window.getSize().x / 8), ceil(window.getSize().y / 4), 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -120,8 +123,8 @@ void SignedDistanceFields::frame(sf::Window& window)
     scene_shader_.set_uniform("view_matrix", camera_.get_view_matrix());
     scene_shader_.set_uniform("model_matrix", create_model_matrix({.position = {5, 0, 5}}));
 
-    /*
-    cube_texture_.bind(0);
+    
+    // cube_texture_.bind(0);
     cube_mesh_.bind();
     cube_mesh_.draw();
 
@@ -129,7 +132,17 @@ void SignedDistanceFields::frame(sf::Window& window)
     scene_shader_.set_uniform("model_matrix", create_model_matrix({.position = {0, -1, 0}}));
     grid_mesh_.bind();
     grid_mesh_.draw(GL_LINES);
-    */
+
+    // IMGUI
+    if (ImGui::Begin("Select Kind"))
+    {
+        ImGui::RadioButton("Torus", &sdf_kind_, 0);
+        ImGui::RadioButton("Cube", &sdf_kind_, 1);
+        ImGui::RadioButton("Fractal 1", &sdf_kind_, 2);
+        ImGui::RadioButton("Fractal 2", &sdf_kind_, 3);
+    }
+    ImGui::End();
+    
 }
 
 void SignedDistanceFields::handle_event(sf::Event event)

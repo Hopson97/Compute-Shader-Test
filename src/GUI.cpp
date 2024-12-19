@@ -1,17 +1,17 @@
 #include "GUI.h"
-/*
+
 #include <imgui.h>
 #include <imgui_sfml/imgui-SFML.h>
 #include <imgui_sfml/imgui_impl_opengl3.h>
 
-#include "Util.h"
+
 
 namespace GUI
 {
-    void init(sf::Window* window)
+    void init(sf::Window& window)
     {
-        ImGui::SFML::Init(*window, cast_vector<float>(window->getSize()));
-        ImGui_ImplOpenGL3_Init();
+    ImGui::SFML::Init(window, sf::Vector2f{window.getSize()});
+    ImGui_ImplOpenGL3_Init();
     }
 
     void begin_frame()
@@ -38,4 +38,3 @@ namespace GUI
     }
 
 } // namespace GUI
-*/
