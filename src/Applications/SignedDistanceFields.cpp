@@ -57,6 +57,10 @@ void SignedDistanceFields::on_render(sf::Window& window)
         ImGui::RadioButton("Fractal 5", &sdf_kind_, 7);
         ImGui::RadioButton("Fractal 6", &sdf_kind_, 9);
         ImGui::RadioButton("Fractal 7", &sdf_kind_, 10);
+        ImGui::RadioButton("Fractal 8", &sdf_kind_, 11);
+        ImGui::RadioButton("Fractal 9", &sdf_kind_, 12);
+        ImGui::RadioButton("Fractal 10", &sdf_kind_, 13);
+        ImGui::RadioButton("Fractal 11", &sdf_kind_, 14);
 
         ImGui::RadioButton("Fractal Mix 1 + 2", &sdf_kind_, 4);
         ImGui::RadioButton("Fractal Mix 1 + 4", &sdf_kind_, 8);

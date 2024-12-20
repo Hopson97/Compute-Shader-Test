@@ -30,10 +30,11 @@ int main()
 
     sf::Window window{{WIDTH, HEIGHT},
                       "Compute Shaders - Press F1 For Debug",
-                      sf::Style::Default,
+                      sf::Style::Close,
                       context_settings};
     window.setVerticalSyncEnabled(true);
     window.setActive(true);
+    window.setPosition({window.getPosition().x, 10});
 
     if (!gladLoadGL())
     {
