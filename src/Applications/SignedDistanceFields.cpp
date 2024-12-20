@@ -34,6 +34,7 @@ void SignedDistanceFields::on_render(sf::Window& window)
     cube_compute.set_uniform("kind", sdf_kind_);
     cube_compute.set_uniform("distortion", sdf_distortion_);
     cube_compute.set_uniform("movement_speed", sdf_camera_speed_);
+    cube_compute.set_uniform("palette_config", sdf_colours_);
     glBindImageTexture(0, screen_texture_.id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     glDispatchCompute(ceil(window.getSize().x / 8), ceil(window.getSize().y / 4), 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -47,7 +48,7 @@ void SignedDistanceFields::on_render(sf::Window& window)
     // IMGUI
     if (ImGui::Begin("SDF Config"))
     {
-        ImGui::Text("Select Kind");
+        ImGui::Text("Select SDF");
         ImGui::RadioButton("Torus", &sdf_kind_, 0);
         ImGui::RadioButton("Cube", &sdf_kind_, 1);
         ImGui::RadioButton("Fractal 1", &sdf_kind_, 2);
@@ -64,6 +65,18 @@ void SignedDistanceFields::on_render(sf::Window& window)
 
         ImGui::RadioButton("Fractal Mix 1 + 2", &sdf_kind_, 4);
         ImGui::RadioButton("Fractal Mix 1 + 4", &sdf_kind_, 8);
+
+        ImGui::Separator();
+        ImGui::Text("Select Colour Palette");
+        ImGui::RadioButton("1", &sdf_colours_, 0);
+        ImGui::SameLine();
+        ImGui::RadioButton("2", &sdf_colours_, 1);
+        ImGui::SameLine();
+        ImGui::RadioButton("3", &sdf_colours_, 2);
+        ImGui::SameLine();
+        ImGui::RadioButton("4", &sdf_colours_, 3);
+
+        ImGui::Separator();
 
 
         ImGui::Text("Parameters");

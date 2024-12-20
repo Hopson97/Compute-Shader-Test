@@ -25,6 +25,9 @@ uniform int kind;
 // Time since the simulation started
 uniform float time;
 
+// What "palette" to use
+uniform int palette_config;
+
 // How much distortion to apply to the shapes
 uniform float distortion;
 
@@ -36,11 +39,6 @@ float p_sin()
     return (sin(time) + 1.0) / 2.0;
 }
 
-float p_cos()
-{
-    return (cos(time) + 1.0) / 2.0;
-}
-
 // Colour pallete from https://www.shadertoy.com/view/ll2GD3
 vec3 palette (float t) 
 {
@@ -48,10 +46,21 @@ vec3 palette (float t)
     vec3 b = vec3(0.5, 0.5, 0.5);
     vec3 c = vec3(1.0, 1.0, 1.0);
     vec3 d = vec3(0.263, 0.416, 0.557);
-    //d = vec3(0.416, 0.234, 0.1);
 
-    //d = vec3(0.263, 0.416, 0.1);
-    // d = vec3(0.263, 0.1, 0.7);
+    switch (palette_config) 
+    {
+        case 1:
+            d = vec3(0.416, 0.234, 0.1);
+            break;
+
+        case 2:
+            d = vec3(0.263, 0.416, 0.1);
+            break;
+
+        case 3:
+            d = vec3(0.263, 0.1, 0.7);
+            break;
+    }
     return a + b * cos(6.28318 * (c * t + d));
 }
 

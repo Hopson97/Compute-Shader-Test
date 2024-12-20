@@ -18,7 +18,8 @@ class SignedDistanceFields : public Application
     sf::Clock clock_;
 
     // Config
-    int sdf_kind_ = 0;
+    int sdf_kind_ = 2;
+    int sdf_colours_ = 0;
     float sdf_distortion_ = 0.25f;
     float sdf_camera_speed_ = 0.1f;
 };
